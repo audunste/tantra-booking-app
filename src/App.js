@@ -1,24 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.js
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { auth } from './firebaseConfig';
+import Home from './Home';
+import LoggedInPage from './LoggedInPage';
+import { db } from './firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
+import { ThemeProvider } from 'styled-components';
+import theme from './theme';
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [username, setUsername] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      setUser(user);
+      if (user) {
+        // Fetch username from Firestore
+        const userDoc = await getDoc(doc(db, 'masseurs', user.uid));
+        if (userDoc.exists()) {
+          setUsername(userDoc.data().username);
+        }
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <Router>
+        <Routes>
+          <Route path="/" element={!user ? <Home /> : <Navigate to={`/${username}`} />} />
+          <Route path="/:username" element={user ? <LoggedInPage /> : <Navigate to="/" />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 }
 

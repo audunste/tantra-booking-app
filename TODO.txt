@@ -1,0 +1,7 @@
+Continue sign in with Apple
+
+Service ID:
+6E4XG53E27.no.steinholm.tantra-booking
+
+Recipe:
+https://firebase.google.com/docs/auth/web/apple?hl=en&authuser=1&_gl=1*1fbwxtn*_ga*MjQ2NDQxOTIyLjE3MjI0Mzg5Nzc.*_ga_CW55HF8NVT*MTcyMjQ1MjU0Mi4yLjEuMTcyMjQ1MzU3Ni41Mi4wLjA.
