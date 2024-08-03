@@ -1,5 +1,6 @@
 // src/ForgotPasswordPage.js
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import ContentWrapper from './components/ContentWrapper';
 import { sendPasswordResetEmail } from 'firebase/auth';
@@ -8,6 +9,7 @@ import styled from 'styled-components';
 import FloatingLabelInputWithError from './components/FloatingLabelInputWithError';
 import PrimaryButton from './components/PrimaryButton';
 
+// Styled components
 const AuthContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -20,7 +22,7 @@ const AuthContainer = styled.div`
 `;
 
 const Message = styled.p`
-  color: ${(props) => props.success ? 'green' : 'red'};
+  color: ${(props) => (props.success ? 'green' : 'red')};
   font-size: 0.9em;
   margin-top: 10px;
 `;
@@ -31,6 +33,16 @@ const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState(false);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const emailFromQuery = queryParams.get('email');
+    if (emailFromQuery) {
+      setEmail(emailFromQuery);
+    }
+  }, [location.search]);
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
@@ -48,7 +60,7 @@ const ForgotPasswordPage = () => {
     <div>
       <Header
         title="Tantra Masseur Booking System"
-        logoUrl="/tantra_logo_colours3.png" 
+        logoUrl="/tantra_logo_colours3.png"
         menuItems={menuItems}
       />
       <main>
@@ -65,13 +77,12 @@ const ForgotPasswordPage = () => {
               />
               <PrimaryButton type="submit">Send Reset Email</PrimaryButton>
             </form>
-          {message && <Message success={success}>{message}</Message>}
+            {message && <Message success={success}>{message}</Message>}
           </AuthContainer>
         </ContentWrapper>
       </main>
     </div>
   );
 };
-
 
 export default ForgotPasswordPage;

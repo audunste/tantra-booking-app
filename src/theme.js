@@ -11,9 +11,9 @@ const theme = {
     secondary: '#b34700',
     background: '#fff',
     text: '#321',
-    secondaryText: '#888888',
+    secondaryText: '#887858',
     error: '#bb1107',
-    border: '#787878',
+    border: '#786848',
   },
 };
 

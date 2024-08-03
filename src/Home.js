@@ -16,7 +16,7 @@ const Home = () => {
       />
       <main>
         <ContentWrapper>
-          <h1>Please log in or sign up</h1>
+          <h1>Please log in or sign up as a masseur</h1>
           <AuthComponent />
         </ContentWrapper>
       </main>

@@ -9,7 +9,14 @@ const ContentWrapper = styled.div`
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: left; /* Centers children horizontally */
+  color: ${(props) => props.theme.colors.text || 'purple'};
+  align-items: left; /* Left aligns children horizontally */
+
+  h1 {
+    font-size: 1.5em;
+    margin-top: 25px;
+  }
+
 `;
 
 export default ContentWrapper;
