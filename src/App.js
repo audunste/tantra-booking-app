@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { auth } from './firebaseConfig';
 import Home from './Home';
 import LoggedInPage from './LoggedInPage';
+import ForgotPasswordPage from './ForgotPasswordPage';
 import { db } from './firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import { ThemeProvider } from 'styled-components';
@@ -40,6 +41,7 @@ function App() {
         <Routes>
           <Route path="/" element={!user ? <Home /> : <Navigate to={`/${username}`} />} />
           <Route path="/:username" element={user ? <LoggedInPage /> : <Navigate to="/" />} />
+          <Route path="/masseur/forgot-password" element={<ForgotPasswordPage />} />          
         </Routes>
       </Router>
     </ThemeProvider>

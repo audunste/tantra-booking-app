@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTheme } from 'styled-components';
+import ErrorMessage from './ErrorMessage';
 
 // Styled components
 const InputWrapper = styled.div`
@@ -15,7 +16,7 @@ const StyledInput = styled.input`
   padding: 10px;
   font-size: 1em;
   border: 2px solid ${(props) =>
-    props.hasError ? props.theme.colors.error : props.theme.colors.border};
+    props.$hasError ? props.theme.colors.error : props.theme.colors.border};
   border-radius: 8px;
   box-sizing: border-box;
   outline: none;
@@ -23,14 +24,14 @@ const StyledInput = styled.input`
 
   &:focus {
     border-color: ${(props) =>
-      props.hasError ? props.theme.colors.error : props.theme.colors.primary};
+      props.$hasError ? props.theme.colors.error : props.theme.colors.primary};
   }
 
   &:not(:placeholder-shown) + label {
     top: -1px;
     font-size: 0.75em;
     color: ${(props) =>
-      props.hasError ? props.theme.colors.error : props.theme.colors.border};
+      props.$hasError ? props.theme.colors.error : props.theme.colors.border};
     background-color: ${(props) => props.theme.colors.background};
     padding: 0 4px;
   }
@@ -40,7 +41,7 @@ const StyledInput = styled.input`
     top: -1px;
     font-size: 0.75em;
     color: ${(props) =>
-      props.hasError ? props.theme.colors.error : props.theme.colors.primary};
+      props.$hasError ? props.theme.colors.error : props.theme.colors.primary};
     background-color: ${(props) => props.theme.colors.background};
     padding: 0 4px;
   }
@@ -57,16 +58,6 @@ const Label = styled.label`
   pointer-events: none;
   padding: 0 4px; /* Adds padding to avoid text clipping */
   transform: translateY(-50%); /* Center text vertically */
-`;
-
-const ErrorMessage = styled.div`
-  height: 18px; /* Fixed height to maintain layout */
-  color: ${(props) => props.theme.colors.error};
-  font-size: 0.8em;
-  margin-top: 4px;
-  margin-left: 12px;
-  visibility: ${(props) => (props.show ? 'visible' : 'hidden')};
-  text-align: left;
 `;
 
 const FloatingLabelInputWithError = ({
@@ -118,11 +109,11 @@ const FloatingLabelInputWithError = ({
         value={value}
         onChange={onChange}
         placeholder=" " // Ensures space for label animation
-        hasError={hasError}
+        $hasError={hasError}
         onBlur={handleBlur}
       />
       <Label>{label}</Label>
-      <ErrorMessage show={hasError}>{error}</ErrorMessage>
+      <ErrorMessage height={18} $show={hasError}>{error}</ErrorMessage>
     </InputWrapper>
   );
 };

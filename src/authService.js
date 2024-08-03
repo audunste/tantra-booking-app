@@ -26,10 +26,22 @@ const signUpWithEmail = async (email, password, username, name) => {
     await sendEmailVerification(user);
     console.log("Verification email sent!");
 
-    return user;
+    return null;
 
   } catch (error) {
     console.error("Error signing up: ", error);
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    if (errorCode == 'auth/weak-password') {
+      return 'The password is too weak.';
+    }
+    if (errorCode == 'auth/email-already-in-use') {
+      return 'The email is already in use. Please log in instead or use a different email.'
+    }
+    if (errorCode == 'auth/invalid-email') {
+      return 'The email address is invalid.'
+    }
+    return errorMessage
   }
 };
 
@@ -42,9 +54,22 @@ const signInWithEmail = async (email, password) => {
     if (!user.emailVerified) {
       await sendEmailVerification(user);
       console.log("Verification email sent!");
-    }   
+    }
+    return null;
   } catch (error) {
     console.error("Error signing in: ", error);
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    if (errorCode == 'auth/invalid-email') {
+      return 'The email address is invalid.'
+    }
+    if (errorCode == 'auth/user-not-found') {
+      return 'User not found. Please sign up instead or use a different email.'
+    }
+    if (errorCode == 'auth/wrong-password' || errorCode == 'auth/invalid-credential') {
+      return 'Incorrect password.';
+    }
+    return errorMessage
   }
 };
 

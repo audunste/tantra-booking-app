@@ -8,6 +8,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import PrimaryButton from './components/PrimaryButton';
 import styled from 'styled-components';
 import FloatingLabelInputWithError from './components/FloatingLabelInputWithError';
+import ErrorMessage from './components/ErrorMessage';
 
 const AuthContainer = styled.div`
   display: flex;
@@ -20,21 +21,6 @@ const AuthContainer = styled.div`
   box-sizing: border-box;
 `;
 
-const Input = styled.input`
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 2px solid ${(props) => props.borderColor || 'gray'};
-  border-radius: 8px;
-  box-sizing: border-box;
-  font-size: 1em;
-  outline: none;
-
-  &:focus {
-    border-color: ${(props) => props.borderColor || '#ff8c00'};
-  }
-`;
-
 const SwitchAuthButton = styled.button`
   background: none;
   border: none;
@@ -45,6 +31,13 @@ const SwitchAuthButton = styled.button`
   text-decoration: underline;
 `;
 
+const ForgotPasswordLink = styled.a`
+  margin-top: 4px;
+  margin-left: 4px;
+  text-align: left;
+`;
+
+
 const AuthComponent = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -53,6 +46,7 @@ const AuthComponent = () => {
   const [name, setName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [suggestUsername, setSuggestUsername] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -72,12 +66,21 @@ const AuthComponent = () => {
   }, [navigate]);
 
   const handleSignUp = async () => {
-    await signUpWithEmail(email, password, username, name);
-    navigate(`/${username}`);
+    setError(null)
+    const error = await signUpWithEmail(email, password, username, name);
+    if (error) {
+      setError(error)
+    } else {
+      navigate(`/${username}`);
+    }
   };
 
   const handleSignIn = async () => {
-    await signInWithEmail(email, password);
+    setError(null)
+    const error = await signInWithEmail(email, password);
+    if (error) {
+      setError(error)
+    }
   };
 
   const validateEmail = (email) => {
@@ -164,6 +167,8 @@ const AuthComponent = () => {
       ? 'Passwords must be equal'
       : '';
 
+  const encodedEmail = encodeURIComponent(email);
+
   return (
     <AuthContainer>
       <FloatingLabelInputWithError
@@ -178,7 +183,7 @@ const AuthComponent = () => {
         label="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        validate={validatePassword}
+        validate={isSignUp ? validatePassword : undefined}
       />
       {isSignUp && (
         <>
@@ -204,10 +209,19 @@ const AuthComponent = () => {
           />
         </>
       )}
+      {(error && isSignUp) && (
+        <ErrorMessage $show={true}>{error}</ErrorMessage>
+      )}
+      {(error && !isSignUp) && (
+        <ErrorMessage $show={true}>{error}<ForgotPasswordLink href={`/masseur/forgot-password?email=${encodedEmail}`}>Forgot password?</ForgotPasswordLink></ErrorMessage>
+      )}
       <PrimaryButton onClick={isSignUp ? handleSignUp : handleSignIn}>
         {isSignUp ? 'Sign Up' : 'Log In'}
       </PrimaryButton>
-      <SwitchAuthButton onClick={() => setIsSignUp(!isSignUp)}>
+      <SwitchAuthButton onClick={() => {
+          setError(null);
+          setIsSignUp(!isSignUp);
+        }}>
         {isSignUp ? 'Switch to Log In' : 'Switch to Sign Up'}
       </SwitchAuthButton>
     </AuthContainer>

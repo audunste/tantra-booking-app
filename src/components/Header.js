@@ -7,7 +7,7 @@ const HeaderContainer = styled.header`
   position: relative;
   width: 100%;
   height: 200px; /* Adjust height as needed */
-  background-image: url('masseur_header_background_dark.png');
+  background-image: url('/masseur_header_background_dark.png');
   background-size: cover;
   background-position: center;
   display: flex;
