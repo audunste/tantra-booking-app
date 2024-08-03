@@ -1,6 +1,6 @@
 // src/authService.js
 import { auth, googleProvider } from './firebaseConfig';
-import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 
@@ -23,6 +23,11 @@ const signUpWithEmail = async (email, password, username, name) => {
       name,
       email
     });
+    await sendEmailVerification(user);
+    console.log("Verification email sent!");
+
+    return user;
+
   } catch (error) {
     console.error("Error signing up: ", error);
   }
@@ -32,6 +37,12 @@ const signUpWithEmail = async (email, password, username, name) => {
 const signInWithEmail = async (email, password) => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    if (!user.emailVerified) {
+      await sendEmailVerification(user);
+      console.log("Verification email sent!");
+    }   
   } catch (error) {
     console.error("Error signing in: ", error);
   }

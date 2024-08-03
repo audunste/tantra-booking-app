@@ -5,7 +5,6 @@ import { signUpWithEmail, signInWithEmail } from './authService';
 import { useNavigate } from 'react-router-dom';
 import { db } from './firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
-import InputWithError from './components/InputWithError';
 import PrimaryButton from './components/PrimaryButton';
 import styled from 'styled-components';
 import FloatingLabelInputWithError from './components/FloatingLabelInputWithError';
