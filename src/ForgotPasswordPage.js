@@ -1,6 +1,7 @@
 // src/ForgotPasswordPage.js
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import ContentWrapper from './components/ContentWrapper';
 import { sendPasswordResetEmail } from 'firebase/auth';
@@ -22,9 +23,10 @@ const AuthContainer = styled.div`
 `;
 
 const Message = styled.p`
-  color: ${(props) => (props.success ? 'green' : 'red')};
+  color: ${(props) => (props.$success ? 'green' : 'red')};
   font-size: 0.9em;
   margin-top: 10px;
+  margin-left: 12px;
 `;
 
 const ForgotPasswordPage = () => {
@@ -35,6 +37,7 @@ const ForgotPasswordPage = () => {
   const [success, setSuccess] = useState(false);
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -67,7 +70,7 @@ const ForgotPasswordPage = () => {
         <ContentWrapper>
           <h1>Reset Password</h1>
           <AuthContainer>
-            <form onSubmit={handlePasswordReset}>
+            {!success && (<form onSubmit={handlePasswordReset}>
               <FloatingLabelInputWithError
                 type="email"
                 label="Enter your email"
@@ -76,8 +79,11 @@ const ForgotPasswordPage = () => {
                 required
               />
               <PrimaryButton type="submit">Send Reset Email</PrimaryButton>
-            </form>
-            {message && <Message success={success}>{message}</Message>}
+            </form>)}
+            {message && <Message $success={success}>{message}</Message>}
+            {success && (
+              <PrimaryButton onClick={() => navigate('/masseur')}>Back to Log in Page</PrimaryButton>
+            )}
           </AuthContainer>
         </ContentWrapper>
       </main>
