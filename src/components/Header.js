@@ -103,7 +103,7 @@ const Header = ({ title, logoUrl, menuItems }) => {
       </ContentWrapper>
       <MenuBar>
         <MenuContainer>
-          {menuItems.map((item, index) => (
+          {menuItems && menuItems.map((item, index) => (
             <MenuButton key={index}>{item}</MenuButton>
           ))}
         </MenuContainer>

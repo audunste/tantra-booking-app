@@ -25,11 +25,25 @@ const StyledCheckbox = styled.input`
     props.$hasError ? props.theme.colors.error : props.theme.colors.primary};
   outline: none;
   transition: border-color 0.2s;
+
+  &:focus {
+    outline: 2px solid ${(props) => props.theme.colors.primary};
+  }
 `;
 
 const Label = styled.label`
   font-size: 1em;
   color: ${(props) => props.theme.colors.text};
+
+  a {
+    color: ${(props) => props.theme.colors.primary};
+    text-decoration: none;
+    transition: color 0.2s;
+
+    &:hover {
+      color: ${(props) => props.theme.colors.secondary};
+    }
+  }
 `;
 
 const CheckboxWithError = ({
@@ -39,34 +53,8 @@ const CheckboxWithError = ({
   validate,
   forceValidate,
 }) => {
-  const theme = useTheme();
-  const [debouncedChecked, setDebouncedChecked] = useState(checked);
   const [error, setError] = useState('');
   const hasError = error && error.length > 0;
-
-  // Debounce effect to update the debounced value
-  useEffect(() => {
-    if (!hasError && !forceValidate) {
-      const handler = setTimeout(() => {
-        setDebouncedChecked(checked);
-      }, 3000);
-
-      // Cleanup function to clear the timeout
-      return () => {
-        clearTimeout(handler);
-      };
-    } else {
-      setDebouncedChecked(checked);
-    }
-  }, [checked, hasError]);
-
-  // Validate the debounced value
-  useEffect(() => {
-    if (debouncedChecked !== undefined) {
-      const errorMessage = validate ? validate(debouncedChecked) : '';
-      setError(errorMessage);
-    }
-  }, [debouncedChecked, validate]);
 
   // Validate on blur
   const handleBlur = () => {
@@ -90,15 +78,17 @@ const CheckboxWithError = ({
           onChange={onChange}
           $hasError={hasError}
           onBlur={handleBlur}
+          id="checkbox"
+          aria-invalid={hasError}
+          aria-describedby={hasError ? "error-message" : undefined}
         />
-        <Label>{label}</Label>
+        <Label htmlFor="checkbox">{label}</Label>
       </CheckboxLabelWrapper>
-      <ErrorMessage height={18} $show={hasError}>
+      <ErrorMessage id="error-message" height={18} $show={hasError}>
         {error}
       </ErrorMessage>
     </CheckboxWrapper>
   );
-
 };
 
 export default CheckboxWithError;

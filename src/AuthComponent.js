@@ -248,7 +248,14 @@ const AuthComponent = () => {
             <CheckboxWithError
               checked={termsAccepted}
               onChange={(e) => setTermsAccepted(e.target.checked)}
-              label="I accept the terms and conditions"
+              label={
+                <span>
+                  I accept the{' '}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer">
+                    terms and conditions
+                  </a>
+                </span>
+              }
               validate={validateTermsAccepted}
               forceValidate={forceValidate}
             />
