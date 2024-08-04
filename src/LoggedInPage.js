@@ -3,15 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { logout } from './authService';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from './firebaseConfig'; // Import db from firebaseConfig
 import Header from './components/Header';
 import ContentWrapper from './components/ContentWrapper';
+import PrimaryButton from './components/PrimaryButton';
 import { useTheme } from 'styled-components';
-
 
 const LoggedInPage = () => {
   const [user, setUser] = useState(null);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [userName, setUserName] = useState('');
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -20,6 +22,7 @@ const LoggedInPage = () => {
       if (currentUser) {
         setUser(currentUser);
         setIsEmailVerified(currentUser.emailVerified);
+        fetchUserName(currentUser.uid); // Fetch the user's name from Firestore
       } else {
         navigate('/'); // Redirect to the home page if not logged in
       }
@@ -28,6 +31,20 @@ const LoggedInPage = () => {
     // Cleanup the subscription on unmount
     return () => unsubscribe();
   }, [navigate]);
+
+  const fetchUserName = async (uid) => {
+    try {
+      const userDoc = await getDoc(doc(db, 'masseurs', uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setUserName(userData.name); // Set the user's name in state
+      } else {
+        console.log('No such document!');
+      }
+    } catch (error) {
+      console.error('Error fetching user document:', error);
+    }
+  };
 
   useEffect(() => {
     let intervalId;
@@ -66,20 +83,22 @@ const LoggedInPage = () => {
   return (
     <div>
       <Header
-        title="Welcome, Masseur!"
+        title={`Welcome, ${userName || 'Masseur'}!`}
         logoUrl="tantra_logo_colours3.png"
         menuItems={menuItems}
       />
       <ContentWrapper>
-        <h1>Welcome, Masseur!</h1>
+        <h1>Welcome, {userName || 'Masseur'}!</h1>
         {!isEmailVerified && (
           <p style={{ color: theme.colors.error }}>
             Your email is not verified. Please check your inbox for a
             verification email.
           </p>
         )}
-        <p>You are now logged in.</p>
-        <button onClick={handleLogout}>Logout</button>
+        {isEmailVerified && (
+          <p>You are now logged in and ready to configure your booking system.</p>
+        )}
+        <PrimaryButton onClick={handleLogout}>Logout</PrimaryButton>
       </ContentWrapper>
     </div>
   );

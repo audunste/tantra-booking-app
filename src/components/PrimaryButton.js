@@ -9,6 +9,7 @@ const PrimaryButton = styled.button`
   );
   border: none;
   width: 100%; /* Fill available width */
+  max-width: 400px;
   color: ${(props) => props.theme.colors.onPrimary};
   font-size: 1em;
   font-weight: 600; /* Semi-bold text */
