@@ -9,6 +9,7 @@ import PrimaryButton from './components/PrimaryButton';
 import styled from 'styled-components';
 import FloatingLabelInputWithError from './components/FloatingLabelInputWithError';
 import ErrorMessage from './components/ErrorMessage';
+import CheckboxWithError from './components/CheckboxWithError';
 
 const AuthContainer = styled.div`
   display: flex;
@@ -44,9 +45,11 @@ const AuthComponent = () => {
   const [confirmedPassword, setConfirmedPassword] = useState('');
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [suggestUsername, setSuggestUsername] = useState(true);
   const [error, setError] = useState(null);
+  const [forceValidate, setForceValidate] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -84,6 +87,11 @@ const AuthComponent = () => {
       setError(error)
     }
   };
+
+  const handleInvalidSignUp = async (e) => {
+    e.preventDefault();
+    setForceValidate(true);
+  }
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -156,7 +164,13 @@ const AuthComponent = () => {
     // If all checks pass
     return '';
   };
-  
+
+  const validateTermsAccepted = (termsAccepted) => {
+    if (!termsAccepted) {
+      return "You must accept the terms and conditions";
+    }
+    return '';
+  };
 
   const handleNameChange = (e) => {
     const value = e.target.value;
@@ -176,28 +190,26 @@ const AuthComponent = () => {
     setSuggestUsername(value.length > 0 ? false : true)
   }
 
-  const confirmedPasswordError =
-    isSignUp && confirmedPassword.length > 0 && password !== confirmedPassword
-      ? 'Passwords must be equal'
-      : '';
-
   const encodedEmail = encodeURIComponent(email);
 
-  const signUpDisabled =
+  const signUpInvalid =
     validateEmail(email)
     || validatePassword(password)
     || validateConfirmedPassword(confirmedPassword)
-    || validateUsername(username);
+    || validateName(name)
+    || validateUsername(username)
+    || validateTermsAccepted(termsAccepted);
 
   return (
     <AuthContainer>
-      <form onSubmit={isSignUp ? handleSignUp : handleSignIn}>
+      <form onSubmit={isSignUp ? (signUpInvalid ? handleInvalidSignUp : handleSignUp) : handleSignIn}>
         <FloatingLabelInputWithError
           type="email"
           label="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           validate={validateEmail}
+          forceValidate={forceValidate}
         />
         <FloatingLabelInputWithError
           type="password"
@@ -205,6 +217,7 @@ const AuthComponent = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           validate={isSignUp ? validatePassword : undefined}
+          forceValidate={forceValidate}
         />
         {isSignUp && (
           <>
@@ -214,13 +227,15 @@ const AuthComponent = () => {
               value={confirmedPassword}
               onChange={(e) => setConfirmedPassword(e.target.value)}
               validate={validateConfirmedPassword}
-            />
+              forceValidate={forceValidate}
+              />
             <FloatingLabelInputWithError
               type="text"
               label="Name"
               value={name}
               onChange={handleNameChange}
               validate={validateName}
+              forceValidate={forceValidate}
             />
             <FloatingLabelInputWithError
               type="text"
@@ -228,6 +243,14 @@ const AuthComponent = () => {
               value={username}
               onChange={handleUsernameChange}
               validate={validateUsername}
+              forceValidate={forceValidate}
+            />
+            <CheckboxWithError
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              label="I accept the terms and conditions"
+              validate={validateTermsAccepted}
+              forceValidate={forceValidate}
             />
           </>
         )}
@@ -237,7 +260,7 @@ const AuthComponent = () => {
         {(error && !isSignUp) && (
           <ErrorMessage $show={true}>{error}<ForgotPasswordLink href={`/masseur/forgot-password?email=${encodedEmail}`}>Forgot password?</ForgotPasswordLink></ErrorMessage>
         )}
-        <PrimaryButton type="submit" disabled={isSignUp && signUpDisabled}>
+        <PrimaryButton type="submit">
           {isSignUp ? 'Sign Up' : 'Log In'}
         </PrimaryButton>
       </form>

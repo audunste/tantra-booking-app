@@ -66,6 +66,7 @@ const FloatingLabelInputWithError = ({
   onChange,
   label,
   validate,
+  forceValidate
 }) => {
   const theme = useTheme();
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -74,7 +75,7 @@ const FloatingLabelInputWithError = ({
 
   // Debounce effect to update the debounced value
   useEffect(() => {
-    if (!hasError) {
+    if (!hasError && !forceValidate) {
       const handler = setTimeout(() => {
         setDebouncedValue(value);
       }, 3000);
@@ -101,6 +102,13 @@ const FloatingLabelInputWithError = ({
     const errorMessage = validate ? validate(value) : '';
     setError(errorMessage);
   };
+
+  if (forceValidate) {
+    const errorMessage = validate ? validate(value) : '';
+    if (error != errorMessage) {
+      setError(errorMessage);
+    }
+  }
 
   return (
     <InputWrapper>
