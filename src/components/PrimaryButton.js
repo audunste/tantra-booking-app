@@ -3,11 +3,12 @@ import styled from 'styled-components';
 
 const PrimaryButton = styled.button`
   background: linear-gradient(to right,
-    ${(props) => props.theme.colors.gradientStart},
-    ${(props) => props.theme.colors.primary},
-    ${(props) => props.theme.colors.gradientEnd}
+    ${(props) => props.disabled ? props.theme.colors.disabled : props.theme.colors.gradientStart},
+    ${(props) => props.disabled ? props.theme.colors.disabled : props.theme.colors.primary},
+    ${(props) => props.disabled ? props.theme.colors.disabled : props.theme.colors.gradientEnd}
   );
   border: none;
+  width: 100%; /* Fill available width */
   color: ${(props) => props.theme.colors.onPrimary};
   font-size: 1em;
   font-weight: 600; /* Semi-bold text */
@@ -20,8 +21,12 @@ const PrimaryButton = styled.button`
   transition: background 0.3s;
 
   &:hover {
-    background: linear-gradient(to right, ${(props) => props.theme.colors.gradientStart}, ${(props) => props.theme.colors.gradientEnd});
+    background: linear-gradient(to right,
+      ${(props) => props.disabled ? props.theme.colors.disabled : props.theme.colors.gradientStart},
+      ${(props) => props.disabled ? props.theme.colors.disabled : props.theme.colors.gradientEnd}
+    );
   }
+
 `;
 
 export default PrimaryButton;

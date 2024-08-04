@@ -65,7 +65,8 @@ const AuthComponent = () => {
     checkUser();
   }, [navigate]);
 
-  const handleSignUp = async () => {
+  const handleSignUp = async (e) => {
+    e.preventDefault();
     setError(null)
     const error = await signUpWithEmail(email, password, username, name);
     if (error) {
@@ -75,7 +76,8 @@ const AuthComponent = () => {
     }
   };
 
-  const handleSignIn = async () => {
+  const handleSignIn = async (e) => {
+    e.preventDefault();
     setError(null)
     const error = await signInWithEmail(email, password);
     if (error) {
@@ -114,6 +116,18 @@ const AuthComponent = () => {
     }
     return 'Passwords must be equal'
   };
+
+  const validateName = (name) => {
+    if (name.length < 3) {
+      return 'Name must be at least 3 characters long.'
+    }
+
+    if (name.length > 40) {
+      return 'Name must not be longer than 40 characters long.'
+    }
+
+    return '';
+  }
 
   const validateUsername = (username) => {
     if (username.length < 3) {
@@ -169,55 +183,64 @@ const AuthComponent = () => {
 
   const encodedEmail = encodeURIComponent(email);
 
+  const signUpDisabled =
+    validateEmail(email)
+    || validatePassword(password)
+    || validateConfirmedPassword(confirmedPassword)
+    || validateUsername(username);
+
   return (
     <AuthContainer>
-      <FloatingLabelInputWithError
-        type="email"
-        label="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        validate={validateEmail}
-      />
-      <FloatingLabelInputWithError
-        type="password"
-        label="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        validate={isSignUp ? validatePassword : undefined}
-      />
-      {isSignUp && (
-        <>
-          <FloatingLabelInputWithError
-            type="password"
-            label="Confirm Password"
-            value={confirmedPassword}
-            onChange={(e) => setConfirmedPassword(e.target.value)}
-            validate={validateConfirmedPassword}
-          />
-          <FloatingLabelInputWithError
-            type="text"
-            label="Name"
-            value={name}
-            onChange={handleNameChange}
-          />
-          <FloatingLabelInputWithError
-            type="text"
-            label="Username"
-            value={username}
-            onChange={handleUsernameChange}
-            validate={validateUsername}
-          />
-        </>
-      )}
-      {(error && isSignUp) && (
-        <ErrorMessage $show={true}>{error}</ErrorMessage>
-      )}
-      {(error && !isSignUp) && (
-        <ErrorMessage $show={true}>{error}<ForgotPasswordLink href={`/masseur/forgot-password?email=${encodedEmail}`}>Forgot password?</ForgotPasswordLink></ErrorMessage>
-      )}
-      <PrimaryButton onClick={isSignUp ? handleSignUp : handleSignIn}>
-        {isSignUp ? 'Sign Up' : 'Log In'}
-      </PrimaryButton>
+      <form onSubmit={isSignUp ? handleSignUp : handleSignIn}>
+        <FloatingLabelInputWithError
+          type="email"
+          label="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          validate={validateEmail}
+        />
+        <FloatingLabelInputWithError
+          type="password"
+          label="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          validate={isSignUp ? validatePassword : undefined}
+        />
+        {isSignUp && (
+          <>
+            <FloatingLabelInputWithError
+              type="password"
+              label="Confirm Password"
+              value={confirmedPassword}
+              onChange={(e) => setConfirmedPassword(e.target.value)}
+              validate={validateConfirmedPassword}
+            />
+            <FloatingLabelInputWithError
+              type="text"
+              label="Name"
+              value={name}
+              onChange={handleNameChange}
+              validate={validateName}
+            />
+            <FloatingLabelInputWithError
+              type="text"
+              label="Username"
+              value={username}
+              onChange={handleUsernameChange}
+              validate={validateUsername}
+            />
+          </>
+        )}
+        {(error && isSignUp) && (
+          <ErrorMessage $show={true}>{error}</ErrorMessage>
+        )}
+        {(error && !isSignUp) && (
+          <ErrorMessage $show={true}>{error}<ForgotPasswordLink href={`/masseur/forgot-password?email=${encodedEmail}`}>Forgot password?</ForgotPasswordLink></ErrorMessage>
+        )}
+        <PrimaryButton type="submit" disabled={isSignUp && signUpDisabled}>
+          {isSignUp ? 'Sign Up' : 'Log In'}
+        </PrimaryButton>
+      </form>
       <SwitchAuthButton onClick={() => {
           setError(null);
           setIsSignUp(!isSignUp);

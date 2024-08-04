@@ -13,7 +13,7 @@ const ContentWrapper = styled.div`
   align-items: left; /* Left aligns children horizontally */
 
   h1 {
-    font-size: 1.5em;
+    font-size: 1.8em;
     margin-top: 25px;
   }
 
