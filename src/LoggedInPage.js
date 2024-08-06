@@ -78,7 +78,7 @@ const LoggedInPage = () => {
     navigate('/'); // Redirect to the home page after logout
   };
 
-  const menuItems = ['Home', 'About', 'Services', 'Contact'];
+  const menuItems = null; //['Home', 'About', 'Services', 'Contact'];
 
   return (
     <div>

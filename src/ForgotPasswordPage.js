@@ -30,7 +30,7 @@ const Message = styled.p`
 `;
 
 const ForgotPasswordPage = () => {
-  const menuItems = ['Home', 'About', 'Services', 'Contact'];
+  const menuItems = null; //['Home', 'About', 'Services', 'Contact'];
 
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');

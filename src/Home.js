@@ -5,7 +5,7 @@ import Header from './components/Header';
 import ContentWrapper from './components/ContentWrapper';
 
 const Home = () => {
-  const menuItems = ['Home', 'About', 'Services', 'Contact'];
+  const menuItems = null; //['Home', 'About', 'Services', 'Contact'];
 
   return (
     <div>
