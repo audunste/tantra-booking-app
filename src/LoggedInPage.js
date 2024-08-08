@@ -9,6 +9,7 @@ import Header from './components/Header';
 import ContentWrapper from './components/ContentWrapper';
 import PrimaryButton from './components/PrimaryButton';
 import { useTheme } from 'styled-components';
+import TimeWindowCreator from './components/TimeWindowCreator';
 
 const LoggedInPage = () => {
   const [user, setUser] = useState(null);
@@ -96,7 +97,10 @@ const LoggedInPage = () => {
           </p>
         )}
         {isEmailVerified && (
+          <>
           <p>You are now logged in and ready to configure your booking system.</p>
+          <TimeWindowCreator />
+          </>
         )}
         <PrimaryButton onClick={handleLogout}>Logout</PrimaryButton>
       </ContentWrapper>
