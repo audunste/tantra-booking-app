@@ -2,7 +2,14 @@
 import React, { useState } from 'react';
 import FloatingLabelDatePickerWithError from './FloatingLabelDatePickerWithError';
 import FloatingLabelTimePickerWithError from './FloatingLabelTimePickerWithError';
+import PrimaryButton from './PrimaryButton';
 import styled from 'styled-components';
+
+const TimeWindowCreatorWrapper = styled.div`
+  width: 100%;
+  position: relative;
+  margin: 10px 0 0 0;
+`;
 
 const FlexContainer = styled.div`
   display: flex;
@@ -17,10 +24,17 @@ const TimePickerWrapper = styled.div`
   flex: 1; /* Each time picker will take up equal space */
 `;
 
+const tomorrow = () => {
+  let tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toISOString().split('T')[0];
+}
+
 const TimeWindowCreator = ({ onCreate }) => {
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(tomorrow());
   const [startTime, setStartTime] = useState('10:00');
   const [endTime, setEndTime] = useState('14:00');
+  const [forceValidate, setForceValidate] = useState(false);
 
   const handleSubmit = () => {
     if (startTime && endTime) {
@@ -39,6 +53,32 @@ const TimeWindowCreator = ({ onCreate }) => {
     } else {
       alert('Please select both start time and duration.');
     }
+  };
+
+  const handleInvalidSubmit = () => {
+    setForceValidate(true);
+  };
+
+  const validateDate = (date) => {
+    if (!date) return 'Date is required';
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset today's time to midnight
+
+    const selectedDate = new Date(date);
+    
+    if (selectedDate < today) {
+      return 'Date cannot be in the past';
+    }
+
+    const maxDate = new Date();
+    maxDate.setMonth(maxDate.getMonth() + 6); // Set the max date to 6 months from today
+
+    if (selectedDate > maxDate) {
+      return 'Date cannot be more than 6 months in the future';
+    }
+
+    return '';
   };
 
   const validateEndTime = (endTime) => {
@@ -63,43 +103,49 @@ const TimeWindowCreator = ({ onCreate }) => {
     }
   
     return '';
-  };  
+  };
+
+  const createInvalid =
+    validateDate(date)
+    || validateEndTime(endTime);
 
   return (
     <div>
       <h2>Create Time Window</h2>
-      <FlexContainer>
-        <DatePickerWrapper>
-          <FloatingLabelDatePickerWithError
-            selected={date}
-            onChange={setDate}
-            label="Date"
-            dateFormat="dd/MM/yyyy"
-            minDate={new Date()}
-            validate={undefined}
-            forceValidate={undefined}
-          />
-        </DatePickerWrapper>
-        <TimePickerWrapper>
-          <FloatingLabelTimePickerWithError
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-            label="Start Time"
-            validate={undefined}
-            forceValidate={undefined}
-          />
-        </TimePickerWrapper>
-        <TimePickerWrapper>
-          <FloatingLabelTimePickerWithError
-            value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
-            label="End Time"
-            validate={validateEndTime}
-            forceValidate={undefined}
-          />
-        </TimePickerWrapper>
-      </FlexContainer>
-      <button onClick={handleSubmit}>Create Time Window</button>
+      <TimeWindowCreatorWrapper>
+        <FlexContainer>
+          <DatePickerWrapper>
+            <FloatingLabelDatePickerWithError
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              label="Date"
+              minDate={new Date()}
+              validate={validateDate}
+              forceValidate={forceValidate}
+            />
+          </DatePickerWrapper>
+          <TimePickerWrapper>
+            <FloatingLabelTimePickerWithError
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              label="Start Time"
+              validate={undefined}
+              forceValidate={forceValidate}
+            />
+          </TimePickerWrapper>
+          <TimePickerWrapper>
+            <FloatingLabelTimePickerWithError
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              label="End Time"
+              validate={validateEndTime}
+              forceValidate={undefined}
+            />
+          </TimePickerWrapper>
+        </FlexContainer>
+        <PrimaryButton onClick={createInvalid ? handleInvalidSubmit : handleSubmit}>Create</PrimaryButton>
+
+      </TimeWindowCreatorWrapper>
     </div>
   );
 };

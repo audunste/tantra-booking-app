@@ -1,11 +1,7 @@
 // src/components/FloatingLabelDatePickerWithError.js
 import React, { useState, useEffect } from 'react';
-import DatePicker from 'react-datepicker';
 import styled, { useTheme } from 'styled-components';
-import 'react-datepicker/dist/react-datepicker.css';
 import ErrorMessage from './ErrorMessage';
-
-import { enGB } from 'date-fns/locale'; // Example with en-GB
 
 // Styled components
 const DatePickerWrapper = styled.div`
@@ -13,16 +9,16 @@ const DatePickerWrapper = styled.div`
   display: block;
   position: relative;
   margin: 10px 0 0 0;
-
-  .react-datepicker-wrapper {
-    display: block;
-  }
 `;
 
-const StyledDatePicker = styled(DatePicker)`
+const StyledDateInput = styled.input`
+  -webkit-appearance: none; /* Remove default styling on iOS */
+  -moz-appearance: none; /* Remove default styling on Firefox */
+  appearance: none; /* Remove default styling */
+
   width: 100%;
   height: 42px;
-  padding: 10px;
+  padding: 8px 10px;
   font-size: 1em;
   border: 2px solid ${(props) =>
     props.$hasError ? props.theme.colors.error : props.theme.colors.border};
@@ -30,11 +26,35 @@ const StyledDatePicker = styled(DatePicker)`
   box-sizing: border-box;
   outline: none;
   transition: border-color 0.2s;
-  padding: 10px;
+  background-color: ${(props) => props.theme.colors.background};
+  color: ${(props) => props.theme.colors.text};
+
+  /* Improve consistency in text rendering */
+  font-family: inherit;
+  line-height: 1.5;
 
   &:focus {
     border-color: ${(props) =>
       props.$hasError ? props.theme.colors.error : props.theme.colors.primary};
+  }
+
+  &:not(:placeholder-shown) + label,
+  &:valid + label {
+    top: -1px;
+    font-size: 0.75em;
+    color: ${(props) =>
+      props.$hasError ? props.theme.colors.error : props.theme.colors.border};
+    background-color: ${(props) => props.theme.colors.background};
+    padding: 0 4px;
+  }
+
+  &:focus + label {
+    top: -1px;
+    font-size: 0.75em;
+    color: ${(props) =>
+      props.$hasError ? props.theme.colors.error : props.theme.colors.primary};
+    background-color: ${(props) => props.theme.colors.background};
+    padding: 0 4px;
   }
 `;
 
@@ -56,32 +76,23 @@ const Label = styled.label`
 `;
 
 const FloatingLabelDatePickerWithError = ({
-  selected,
+  value,
   onChange,
   label,
-  dateFormat,
   minDate,
   validate,
   forceValidate,
 }) => {
-  const theme = useTheme();
   const [focused, setFocused] = useState(false);
-  const [debouncedValue, setDebouncedValue] = useState(selected);
+  const [debouncedValue, setDebouncedValue] = useState(value);
   const [error, setError] = useState('');
   const hasError = error && error.length > 0;
-
-  // Format the date to include the day of the week
-  const formatDateWithDay = (date) => {
-    if (!date) return '';
-    const options = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
-    return new Date(date).toLocaleDateString('en-US', options);
-  };
 
   // Debounce effect to update the debounced value
   useEffect(() => {
     if (!hasError && !forceValidate) {
       const handler = setTimeout(() => {
-        setDebouncedValue(selected);
+        setDebouncedValue(value);
       }, 3000);
 
       // Cleanup function to clear the timeout
@@ -89,9 +100,9 @@ const FloatingLabelDatePickerWithError = ({
         clearTimeout(handler);
       };
     } else {
-      setDebouncedValue(selected);
+      setDebouncedValue(value);
     }
-  }, [selected, hasError]);
+  }, [value, hasError]);
 
   // Validate the debounced value
   useEffect(() => {
@@ -103,13 +114,13 @@ const FloatingLabelDatePickerWithError = ({
 
   // Validate on blur
   const handleBlur = () => {
-    const errorMessage = validate ? validate(selected) : '';
+    const errorMessage = validate ? validate(value) : '';
     setError(errorMessage);
     setFocused(false);
   };
 
   if (forceValidate) {
-    const errorMessage = validate ? validate(selected) : '';
+    const errorMessage = validate ? validate(value) : '';
     if (error !== errorMessage) {
       setError(errorMessage);
     }
@@ -117,26 +128,19 @@ const FloatingLabelDatePickerWithError = ({
 
   return (
     <DatePickerWrapper>
-      <StyledDatePicker
-        selected={selected}
+      <StyledDateInput
+        aria-label="Date"
+        type="date"
+        value={value}
         onChange={onChange}
         onFocus={() => setFocused(true)}
         onBlur={handleBlur}
-        placeholderText=" " // Ensures space for label animation
-        dateFormat={dateFormat}
-        locale={enGB}
-        minDate={minDate}
+        min={minDate ? minDate.toISOString().split('T')[0] : undefined}
+        placeholder=" " // Ensures space for label animation
         $hasError={hasError}
-        customTimeInput={
-          <input
-            value={selected ? formatDateWithDay(selected) : ''}
-            readOnly
-            $hasError={hasError}
-            onClick={() => setFocused(true)}
-          />
-        }
+        required
       />
-      <Label $hasFocus={focused} $hasValue={!!selected}>
+      <Label $hasFocus={focused} $hasValue={!!value}>
         {label}
       </Label>
       <ErrorMessage height={18} $show={hasError}>
