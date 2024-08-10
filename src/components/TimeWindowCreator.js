@@ -1,19 +1,35 @@
-// src/components/TimeWindowCreator.js
 import React, { useState } from 'react';
 import FloatingLabelDatePickerWithError from './FloatingLabelDatePickerWithError';
 import FloatingLabelTimePickerWithError from './FloatingLabelTimePickerWithError';
 import PrimaryButton from './PrimaryButton';
-import styled from 'styled-components';
+import styled, { ThemeProvider } from 'styled-components';
+import SecondaryButton from './SecondaryButton'; // Assuming you have a SecondaryButton component
+import theme from '../theme';
+import { Heading2 } from './Heading';
+
+const formTheme = {
+  ...theme,
+  colors: {
+    ...theme.colors,
+    //background: '#f5f2f0',
+  },
+};
 
 const TimeWindowCreatorWrapper = styled.div`
-  width: 100%;
+  width: calc(100% + 20px);
+  box-sizing: border-box;
   position: relative;
-  margin: 10px 0 0 0;
+  margin: 0 -10px;
+  padding: 5px 10px;
+  background-color: ${(props => props.theme.colors.background)};
+  //border: 2px solid ${(props) => props.theme.colors.border}; /* 2px border with primary color */
+  border-radius: 16px;
+
 `;
 
 const FlexContainer = styled.div`
   display: flex;
-  gap: 10px;
+  gap: ${(props => props.theme.dimens.gap)}px;
 `;
 
 const DatePickerWrapper = styled.div`
@@ -24,19 +40,27 @@ const TimePickerWrapper = styled.div`
   flex: 1; /* Each time picker will take up equal space */
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: ${(props => props.theme.dimens.gap)}px;
+  margin-top: 0px; /* Add space above the buttons */
+`;
+
 const tomorrow = () => {
   let tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   return tomorrow.toISOString().split('T')[0];
 }
 
-const TimeWindowCreator = ({ onCreate }) => {
+const TimeWindowCreator = ({ onCreate, onCancel }) => { 
   const [date, setDate] = useState(tomorrow());
   const [startTime, setStartTime] = useState('10:00');
   const [endTime, setEndTime] = useState('14:00');
   const [forceValidate, setForceValidate] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     if (startTime && endTime) {
       const [startHours, startMinutes] = startTime.split(':').map(Number);
       const startDateTime = new Date(date);
@@ -55,7 +79,8 @@ const TimeWindowCreator = ({ onCreate }) => {
     }
   };
 
-  const handleInvalidSubmit = () => {
+  const handleInvalidSubmit = (e) => {
+    e.preventDefault()
     setForceValidate(true);
   };
 
@@ -111,8 +136,10 @@ const TimeWindowCreator = ({ onCreate }) => {
 
   return (
     <div>
-      <h2>Create Time Window</h2>
+      <Heading2>Create Time Window</Heading2>
+      <ThemeProvider theme={formTheme}>
       <TimeWindowCreatorWrapper>
+        <form onSubmit={createInvalid ? handleInvalidSubmit : handleSubmit}>
         <FlexContainer>
           <DatePickerWrapper>
             <FloatingLabelDatePickerWithError
@@ -143,9 +170,15 @@ const TimeWindowCreator = ({ onCreate }) => {
             />
           </TimePickerWrapper>
         </FlexContainer>
-        <PrimaryButton onClick={createInvalid ? handleInvalidSubmit : handleSubmit}>Create</PrimaryButton>
-
+        <ButtonContainer>
+          <SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
+          <PrimaryButton type="submit">
+            Create
+          </PrimaryButton>
+        </ButtonContainer>
+        </form>
       </TimeWindowCreatorWrapper>
+      </ThemeProvider>
     </div>
   );
 };

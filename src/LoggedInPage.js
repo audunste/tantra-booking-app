@@ -7,9 +7,10 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig'; // Import db from firebaseConfig
 import Header from './components/Header';
 import ContentWrapper from './components/ContentWrapper';
-import PrimaryButton from './components/PrimaryButton';
+import SecondaryButton from './components/SecondaryButton';
 import { useTheme } from 'styled-components';
 import TimeWindowCreator from './components/TimeWindowCreator';
+import { Heading1 } from './components/Heading';
 
 const LoggedInPage = () => {
   const [user, setUser] = useState(null);
@@ -89,7 +90,7 @@ const LoggedInPage = () => {
         menuItems={menuItems}
       />
       <ContentWrapper>
-        <h1>Welcome, {userName || 'Masseur'}!</h1>
+        <Heading1>Welcome, {userName || 'Masseur'}!</Heading1>
         {!isEmailVerified && (
           <p style={{ color: theme.colors.error }}>
             Your email is not verified. Please check your inbox for a
@@ -102,7 +103,7 @@ const LoggedInPage = () => {
           <TimeWindowCreator />
           </>
         )}
-        <PrimaryButton onClick={handleLogout}>Logout</PrimaryButton>
+        <SecondaryButton onClick={handleLogout}>Logout</SecondaryButton>
       </ContentWrapper>
     </div>
   );

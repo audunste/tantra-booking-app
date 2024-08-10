@@ -9,12 +9,17 @@ const theme = {
     //gradientEnd: '#e1a805',
     onPrimary: '#fff2e5',
     onPrimaryShadow: 'rgba(24, 12, 0, 0.6)',
-    secondary: '#b34700',
+    secondary: '#e5e2df',
     background: '#fff',
+    backgroundHover: '#d9d5d2',
     text: '#321',
     secondaryText: '#887858',
     error: '#bb1107',
     border: '#786848',
+  },
+  dimens: {
+    sideMargin: 20,
+    gap: 10,
   },
 };
 

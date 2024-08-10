@@ -267,7 +267,7 @@ const AuthComponent = () => {
         {(error && !isSignUp) && (
           <ErrorMessage $show={true}>{error}<ForgotPasswordLink href={`/masseur/forgot-password?email=${encodedEmail}`}>Forgot password?</ForgotPasswordLink></ErrorMessage>
         )}
-        <PrimaryButton type="submit">
+        <PrimaryButton type="submit" $fill={true}>
           {isSignUp ? 'Sign Up' : 'Log In'}
         </PrimaryButton>
       </form>
