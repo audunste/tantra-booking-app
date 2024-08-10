@@ -82,11 +82,19 @@ const FloatingLabelDatePickerWithError = ({
   minDate,
   validate,
   forceValidate,
+  errorDelegate,
 }) => {
   const [focused, setFocused] = useState(false);
   const [debouncedValue, setDebouncedValue] = useState(value);
   const [error, setError] = useState('');
   const hasError = error && error.length > 0;
+
+  const onError = (newError) => {
+    if (errorDelegate) {
+      errorDelegate(newError);
+    }
+    setError(newError);
+  };
 
   // Debounce effect to update the debounced value
   useEffect(() => {
@@ -108,21 +116,21 @@ const FloatingLabelDatePickerWithError = ({
   useEffect(() => {
     if (debouncedValue) {
       const errorMessage = validate ? validate(debouncedValue) : '';
-      setError(errorMessage);
+      onError(errorMessage);
     }
   }, [debouncedValue, validate]);
 
   // Validate on blur
   const handleBlur = () => {
     const errorMessage = validate ? validate(value) : '';
-    setError(errorMessage);
+    onError(errorMessage);
     setFocused(false);
   };
 
   if (forceValidate) {
     const errorMessage = validate ? validate(value) : '';
     if (error !== errorMessage) {
-      setError(errorMessage);
+      onError(errorMessage);
     }
   }
 
@@ -143,9 +151,9 @@ const FloatingLabelDatePickerWithError = ({
       <Label $hasFocus={focused} $hasValue={!!value}>
         {label}
       </Label>
-      <ErrorMessage height={18} $show={hasError}>
+      {!errorDelegate && (<ErrorMessage height={18} $show={hasError}>
         {error}
-      </ErrorMessage>
+      </ErrorMessage>)}
     </DatePickerWrapper>
   );
 };
