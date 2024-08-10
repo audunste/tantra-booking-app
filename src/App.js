@@ -37,18 +37,51 @@ function App() {
       }
     };
 
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    mediaQuery.addEventListener('change', detectDarkMode);
+    const mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQueryDark.addEventListener('change', detectDarkMode);
 
     // Set the theme initially based on the system preference
-    if (mediaQuery.matches) {
+    if (mediaQueryDark.matches) {
       setTheme(darkTheme);
     } else {
       setTheme(lightTheme);
     }
 
-    // Cleanup the event listener on unmount
-    return () => mediaQuery.removeEventListener('change', detectDarkMode);
+    // Function to detect if the screen size is small (phone)
+    const detectPhoneSize = (e) => {
+      if (e.matches) {
+        setTheme((prevTheme) => ({
+          ...prevTheme,
+          dimens: {
+            ...prevTheme.dimens,
+            sideMargin: 10, // Adjust sideMargin for phone size
+            // You can also adjust other dimensions here if needed
+          },
+        }));
+      } else {
+        // Revert to original dimensions if screen size is not phone-sized
+        setTheme((prevTheme) => ({
+          ...prevTheme,
+          dimens: {
+            ...prevTheme.dimens,
+            sideMargin: 20, // Revert to the original sideMargin
+            // Revert other dimensions if needed
+          },
+        }));
+      }
+    };
+
+    const mediaQueryPhone = window.matchMedia(`(max-width: 600px)`);
+    mediaQueryPhone.addEventListener('change', detectPhoneSize);
+
+    // Check the current size on load
+    detectPhoneSize(mediaQueryPhone);
+
+    // Cleanup the event listeners on unmount
+    return () => {
+      mediaQueryDark.removeEventListener('change', detectDarkMode);
+      mediaQueryPhone.removeEventListener('change', detectPhoneSize);
+    };
   }, []);
 
   useEffect(() => {
