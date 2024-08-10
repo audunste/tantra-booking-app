@@ -8,13 +8,48 @@ import ForgotPasswordPage from './ForgotPasswordPage';
 import Terms from './Terms';
 import { db } from './firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
-import { ThemeProvider } from 'styled-components';
-import theme from './theme';
+import { ThemeProvider, createGlobalStyle } from 'styled-components';
+import { lightTheme, darkTheme } from './theme';
+
+const GlobalStyle = createGlobalStyle`
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: ${(props) => props.theme.colors.background};
+    color: ${(props) => props.theme.colors.text};
+    transition: background-color 0.2s ease; /* Smooth transition when changing theme */
+  }
+`;
 
 function App() {
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState(lightTheme);
+
+  useEffect(() => {
+    // Function to detect the system color scheme
+    const detectDarkMode = (e) => {
+      if (e.matches) {
+        setTheme(darkTheme);
+      } else {
+        setTheme(lightTheme);
+      }
+    };
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', detectDarkMode);
+
+    // Set the theme initially based on the system preference
+    if (mediaQuery.matches) {
+      setTheme(darkTheme);
+    } else {
+      setTheme(lightTheme);
+    }
+
+    // Cleanup the event listener on unmount
+    return () => mediaQuery.removeEventListener('change', detectDarkMode);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -38,6 +73,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      <GlobalStyle />
       <Router>
         <Routes>
           <Route path="/" element={!user ? <Home /> : <Navigate to={`/${username}`} />} />

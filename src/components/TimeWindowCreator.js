@@ -4,16 +4,7 @@ import FloatingLabelTimePickerWithError from './FloatingLabelTimePickerWithError
 import PrimaryButton from './PrimaryButton';
 import styled, { ThemeProvider } from 'styled-components';
 import SecondaryButton from './SecondaryButton'; // Assuming you have a SecondaryButton component
-import theme from '../theme';
 import { Heading2 } from './Heading';
-
-const formTheme = {
-  ...theme,
-  colors: {
-    ...theme.colors,
-    //background: '#f5f2f0',
-  },
-};
 
 const TimeWindowCreatorWrapper = styled.div`
   width: calc(100% + 20px);
@@ -137,7 +128,6 @@ const TimeWindowCreator = ({ onCreate, onCancel }) => {
   return (
     <div>
       <Heading2>Create Time Window</Heading2>
-      <ThemeProvider theme={formTheme}>
       <TimeWindowCreatorWrapper>
         <form onSubmit={createInvalid ? handleInvalidSubmit : handleSubmit}>
         <FlexContainer>
@@ -178,7 +168,6 @@ const TimeWindowCreator = ({ onCreate, onCancel }) => {
         </ButtonContainer>
         </form>
       </TimeWindowCreatorWrapper>
-      </ThemeProvider>
     </div>
   );
 };

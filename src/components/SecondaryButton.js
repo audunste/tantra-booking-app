@@ -15,7 +15,7 @@ const SecondaryButton = styled.button`
   border-radius: 50px; /* Pill-shaped button */
   cursor: pointer;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 
   &:hover {
     background: ${(props) => props.theme.colors.backgroundHover}; /* Light background on hover */

@@ -12,6 +12,10 @@ const InputWrapper = styled.div`
 `;
 
 const StyledInput = styled.input`
+  -webkit-appearance: none; /* Remove default styling on iOS */
+  -moz-appearance: none; /* Remove default styling on Firefox */
+  appearance: none; /* Remove default styling */
+
   width: 100%;
   padding: 10px;
   font-size: 1em;
@@ -21,6 +25,8 @@ const StyledInput = styled.input`
   box-sizing: border-box;
   outline: none;
   transition: border-color 0.2s;
+  background-color: ${(props) => props.theme.colors.background};
+  color: ${(props) => props.theme.colors.text};
 
   &:focus {
     border-color: ${(props) =>

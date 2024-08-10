@@ -48,7 +48,7 @@ const Title = styled.h1`
 
 const MenuBar = styled.div`
   width: 100%;
-  background: rgba(255, 255, 255, 0.7);
+  background: ${(props) => props.theme.colors.imageOverlayBackground};
   display: flex;
   justify-content: center; /* Centers the inner container */
   align-items: flex-end; /* Aligns items to the bottom of the nav */
