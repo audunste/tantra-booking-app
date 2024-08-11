@@ -110,6 +110,7 @@ const FloatingLabelDatePickerWithError = ({
     } else {
       setDebouncedValue(value);
     }
+    console.log("date-picker: " + value)
   }, [value, hasError]);
 
   // Validate the debounced value

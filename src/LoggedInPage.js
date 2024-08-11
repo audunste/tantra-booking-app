@@ -11,6 +11,7 @@ import SecondaryButton from './components/SecondaryButton';
 import { useTheme } from 'styled-components';
 import TimeWindowCreator from './components/TimeWindowCreator';
 import { Heading1 } from './components/Heading';
+import { createTimeWindow } from './model/timeWindows';
 
 const LoggedInPage = () => {
   const [user, setUser] = useState(null);
@@ -80,6 +81,12 @@ const LoggedInPage = () => {
     navigate('/'); // Redirect to the home page after logout
   };
 
+  const handleCreateTimeWindow = ({ startTime, endTime }) => {
+    if (user) {
+      createTimeWindow(db, startTime, endTime, user.uid)
+    }
+  }
+
   const menuItems = null; //['Home', 'About', 'Services', 'Contact'];
 
   return (
@@ -100,7 +107,7 @@ const LoggedInPage = () => {
         {isEmailVerified && (
           <>
           <p>You are now logged in and ready to configure your booking system.</p>
-          <TimeWindowCreator />
+          <TimeWindowCreator onCreate={handleCreateTimeWindow} />
           </>
         )}
         <SecondaryButton onClick={handleLogout}>Logout</SecondaryButton>

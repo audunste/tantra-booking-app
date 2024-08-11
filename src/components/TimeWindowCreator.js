@@ -43,7 +43,8 @@ const tomorrow = () => {
   return tomorrow.toISOString().split('T')[0];
 };
 
-const TimeWindowCreator = ({ onCreate, onCancel }) => {
+const TimeWindowCreator = ({ onCreate }) => {
+  const [isExpanded, setExpanded] = useState(false);
   const [date, setDate] = useState(tomorrow());
   const [startTime, setStartTime] = useState('10:00');
   const [endTime, setEndTime] = useState('14:00');
@@ -54,6 +55,19 @@ const TimeWindowCreator = ({ onCreate, onCancel }) => {
     endTime: '',
   });
   const [combinedError, setCombinedError] = useState('');
+
+  const reset = () => {
+    setDate(tomorrow());
+    setStartTime('10:00');
+    setEndTime('14:00');
+    setForceValidate(false);
+    setErrors({
+      date: '',
+      startTime: '',
+      endTime: '',
+    });
+    setCombinedError('');
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -70,6 +84,8 @@ const TimeWindowCreator = ({ onCreate, onCancel }) => {
         startTime: startDateTime.toISOString(),
         endTime: endDateTime.toISOString(),
       });
+      setExpanded(false);
+      reset();
     } else {
       alert('Please select both start time and duration.');
     }
@@ -80,7 +96,20 @@ const TimeWindowCreator = ({ onCreate, onCancel }) => {
     setForceValidate(true);
   };
 
+  const handleCreateNewAvailability = (e) => {
+    e.preventDefault();
+    setExpanded(true);
+  }
+
+  const handleCancel = () => {
+    setExpanded(false);
+    reset();
+  }
+
+  /*
   const handleError = (error, key) => {
+    console.log("handleError error: " + error + " key: " + key)
+    console.log("handleError errors:" + JSON.stringify(errors))
     setErrors((prevErrors) => {
       const newErrors = { ...prevErrors, [key]: error };
       const firstError = Object.values(newErrors).find((err) => err);
@@ -88,6 +117,27 @@ const TimeWindowCreator = ({ onCreate, onCancel }) => {
       return newErrors;
     });
   };
+  */
+  const handleError = (error, key) => {
+    setErrors((prevErrors) => {
+      // Check if the error for this key is different from the existing one
+      if (prevErrors[key] !== error) {
+        const newErrors = { ...prevErrors, [key]: error };
+  
+        // Find the first non-empty error in the updated error state
+        const firstError = Object.values(newErrors).find((err) => err);
+        
+        // Update the combined error
+        setCombinedError(firstError || '');
+        
+        // Return the new error state
+        return newErrors;
+      }
+      
+      // If the error hasn't changed, return the previous state without updating
+      return prevErrors;
+    });
+  };  
 
   const validateDate = (date) => {
     if (!date) return 'Date is required';
@@ -138,48 +188,54 @@ const TimeWindowCreator = ({ onCreate, onCancel }) => {
 
   return (
     <div>
-      <Heading2>Create Time Window</Heading2>
       <TimeWindowCreatorWrapper>
-        <form onSubmit={createInvalid ? handleInvalidSubmit : handleSubmit}>
-          <FlexContainer>
-            <DatePickerWrapper>
-              <FloatingLabelDatePickerWithError
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                label="Date"
-                minDate={new Date()}
-                validate={validateDate}
-                forceValidate={forceValidate}
-                errorDelegate={(error) => handleError(error, 'date')}
-              />
-            </DatePickerWrapper>
-            <TimePickerWrapper>
-              <FloatingLabelTimePickerWithError
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                label="Start Time"
-                validate={undefined}
-                forceValidate={forceValidate}
-                errorDelegate={(error) => handleError(error, 'startTime')}
-              />
-            </TimePickerWrapper>
-            <TimePickerWrapper>
-              <FloatingLabelTimePickerWithError
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                label="End Time"
-                validate={validateEndTime}
-                forceValidate={undefined}
-                errorDelegate={(error) => handleError(error, 'endTime')}
-              />
-            </TimePickerWrapper>
-          </FlexContainer>
-          <ErrorMessage height={18} $show={true}>{combinedError}</ErrorMessage>
-          <ButtonContainer>
-            <SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
-            <PrimaryButton type="submit">Create</PrimaryButton>
-          </ButtonContainer>
-        </form>
+        {!isExpanded && (
+          <form onSubmit={handleCreateNewAvailability}>
+              <PrimaryButton type="submit">Create New Availability</PrimaryButton>
+          </form>
+        )}
+        {isExpanded && (
+          <form onSubmit={createInvalid ? handleInvalidSubmit : handleSubmit}>
+            <FlexContainer>
+              <DatePickerWrapper>
+                <FloatingLabelDatePickerWithError
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  label="Date"
+                  minDate={new Date()}
+                  validate={validateDate}
+                  forceValidate={forceValidate}
+                  errorDelegate={(error) => handleError(error, 'date')}
+                />
+              </DatePickerWrapper>
+              <TimePickerWrapper>
+                <FloatingLabelTimePickerWithError
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  label="Start Time"
+                  validate={undefined}
+                  forceValidate={forceValidate}
+                  errorDelegate={(error) => handleError(error, 'startTime')}
+                />
+              </TimePickerWrapper>
+              <TimePickerWrapper>
+                <FloatingLabelTimePickerWithError
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  label="End Time"
+                  validate={validateEndTime}
+                  forceValidate={undefined}
+                  errorDelegate={(error) => handleError(error, 'endTime')}
+                />
+              </TimePickerWrapper>
+            </FlexContainer>
+            <ErrorMessage height={18} $show={true}>{combinedError}</ErrorMessage>
+            <ButtonContainer>
+              <SecondaryButton onClick={handleCancel}>Cancel</SecondaryButton>
+              <PrimaryButton type="submit">Create</PrimaryButton>
+            </ButtonContainer>
+          </form>
+        )}
       </TimeWindowCreatorWrapper>
     </div>
   );
