@@ -12,6 +12,8 @@ import { useTheme } from 'styled-components';
 import TimeWindowCreator from './components/TimeWindowCreator';
 import { Heading1 } from './components/Heading';
 import { createTimeWindow } from './model/timeWindows';
+import { useTranslation } from 'react-i18next';
+
 
 const LoggedInPage = () => {
   const [user, setUser] = useState(null);
@@ -19,6 +21,8 @@ const LoggedInPage = () => {
   const [userName, setUserName] = useState('');
   const navigate = useNavigate();
   const theme = useTheme();
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -92,25 +96,24 @@ const LoggedInPage = () => {
   return (
     <div>
       <Header
-        title={`Welcome, ${userName || 'Masseur'}!`}
+        title={t('welcomeMasseur_title', { userName: userName || t('masseur_lbl')})}
         logoUrl="tantra_logo_colours3.png"
         menuItems={menuItems}
       />
       <ContentWrapper>
-        <Heading1>Welcome, {userName || 'Masseur'}!</Heading1>
+        <Heading1>{t('welcomeMasseur_title', { userName: userName || t('masseur_lbl')})}</Heading1>
         {!isEmailVerified && (
           <p style={{ color: theme.colors.error }}>
-            Your email is not verified. Please check your inbox for a
-            verification email.
+            {t('emailNotVerified_msg')}
           </p>
         )}
         {isEmailVerified && (
           <>
-          <p>You are now logged in and ready to configure your booking system.</p>
+          <p>{t('loggedIn_msg')}</p>
           <TimeWindowCreator onCreate={handleCreateTimeWindow} />
           </>
         )}
-        <SecondaryButton onClick={handleLogout}>Logout</SecondaryButton>
+        <SecondaryButton onClick={handleLogout}>{t('logout_act')}</SecondaryButton>
       </ContentWrapper>
     </div>
   );

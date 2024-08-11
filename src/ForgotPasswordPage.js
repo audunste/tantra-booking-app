@@ -9,6 +9,7 @@ import { auth } from './firebaseConfig';
 import styled from 'styled-components';
 import FloatingLabelInputWithError from './components/FloatingLabelInputWithError';
 import PrimaryButton from './components/PrimaryButton';
+import { useTranslation } from 'react-i18next';
 
 // Styled components
 const AuthContainer = styled.div`
@@ -38,6 +39,7 @@ const ForgotPasswordPage = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -52,37 +54,37 @@ const ForgotPasswordPage = () => {
     try {
       await sendPasswordResetEmail(auth, email);
       setSuccess(true);
-      setMessage('Password reset email sent! Please check your inbox.');
+      setMessage(t('passwordResetEmailSent_msg'));
     } catch (error) {
       setSuccess(false);
-      setMessage('Failed to send password reset email. Please try again.');
+      setMessage(t('passwordResetEmailFailed_msg'));
     }
   };
 
   return (
     <div>
       <Header
-        title="Tantra Masseur Booking System"
+        title={t('header_title')}
         logoUrl="/tantra_logo_colours3.png"
         menuItems={menuItems}
       />
       <main>
         <ContentWrapper>
-          <h1>Reset Password</h1>
+          <h1>{t('resetPassword')}</h1>
           <AuthContainer>
             {!success && (<form onSubmit={handlePasswordReset}>
               <FloatingLabelInputWithError
                 type="email"
-                label="Enter your email"
+                label={t('enterEmail_lbl')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              <PrimaryButton type="submit">Send Reset Email</PrimaryButton>
+              <PrimaryButton type="submit">{t('sendResetEmail_act')}</PrimaryButton>
             </form>)}
             {message && <Message $success={success}>{message}</Message>}
             {success && (
-              <PrimaryButton onClick={() => navigate('/masseur')}>Back to Log in Page</PrimaryButton>
+              <PrimaryButton onClick={() => navigate('/masseur')}>{t('backToLogin_act')}</PrimaryButton>
             )}
           </AuthContainer>
         </ContentWrapper>

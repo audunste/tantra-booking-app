@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import FloatingLabelInputWithError from './components/FloatingLabelInputWithError';
 import ErrorMessage from './components/ErrorMessage';
 import CheckboxWithError from './components/CheckboxWithError';
+import { useTranslation } from 'react-i18next';
 
 const AuthContainer = styled.div`
   display: flex;
@@ -51,6 +52,8 @@ const AuthComponent = () => {
   const [error, setError] = useState(null);
   const [forceValidate, setForceValidate] = useState(false);
   const navigate = useNavigate();
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     const checkUser = async () => {
@@ -95,7 +98,7 @@ const AuthComponent = () => {
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email) ? '' : 'Please enter a valid email address.';
+    return emailRegex.test(email) ? '' : t('invalidEmail_msg');
   };
 
   const validatePassword = (password) => {
@@ -104,15 +107,15 @@ const AuthComponent = () => {
     const hasLetter = /[a-zA-Z]/; // Regex to check for at least one letter
   
     if (password.length < minLength) {
-      return 'Password must be at least 8 characters long.';
+      return t('passwordMinLength_msg');
     }
   
     if (!hasNumber.test(password)) {
-      return 'Password must contain at least one number.';
+      return t('passwordNumber_msg');
     }
   
     if (!hasLetter.test(password)) {
-      return 'Password must contain at least one letter.';
+      return t('passwordLetter_msg');
     }
   
     return ''; // Return an empty string if all validations pass
@@ -122,16 +125,16 @@ const AuthComponent = () => {
     if (confirmed === password) {
       return '';
     }
-    return 'Passwords must be equal'
+    return t('passwordsUnequal_msg')
   };
 
   const validateName = (name) => {
     if (name.length < 3) {
-      return 'Name must be at least 3 characters long.'
+      return t('nameMinLength_msg')
     }
 
     if (name.length > 40) {
-      return 'Name must not be longer than 40 characters long.'
+      return t('nameMaxLength_msg')
     }
 
     return '';
@@ -139,26 +142,26 @@ const AuthComponent = () => {
 
   const validateUsername = (username) => {
     if (username.length < 3) {
-      return 'Username must be at least 3 characters long.'
+      return t('usernameMinLength_msg')
     }
 
     if (username.length > 20) {
-      return 'Username must not be longer than 20 characters long.'
+      return t('usernameMaxLength_msg')
     }
 
     // Check for leading or trailing hyphens
     if (/^-|-$/.test(username)) {
-      return "Username cannot start or end with a hyphen.";
+      return t('usernameStartOrEndHyphen_msg');
     }
 
     // Check for repeated hyphens
     if (/--/.test(username)) {
-      return "Username cannot contain consecutive hyphens.";
+      return t('usernameConsecutiveHyphens_msg');
     }
 
     // Check for invalid characters
     if (/[^a-z0-9-]/.test(username)) {
-      return "Only lowercase letters, numbers, and hyphens.";
+      return t('usernameInvalidCharacters_msg');
     }
   
     // If all checks pass
@@ -167,7 +170,7 @@ const AuthComponent = () => {
 
   const validateTermsAccepted = (termsAccepted) => {
     if (!termsAccepted) {
-      return "You must accept the terms and conditions";
+      return t('termsUnaccepted_msg');
     }
     return '';
   };
@@ -205,7 +208,7 @@ const AuthComponent = () => {
       <form onSubmit={isSignUp ? (signUpInvalid ? handleInvalidSignUp : handleSignUp) : handleSignIn}>
         <FloatingLabelInputWithError
           type="email"
-          label="Email"
+          label={t('email_lbl')}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           validate={validateEmail}
@@ -213,7 +216,7 @@ const AuthComponent = () => {
         />
         <FloatingLabelInputWithError
           type="password"
-          label="Password"
+          label={t('password_lbl')}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           validate={isSignUp ? validatePassword : undefined}
@@ -223,7 +226,7 @@ const AuthComponent = () => {
           <>
             <FloatingLabelInputWithError
               type="password"
-              label="Confirm Password"
+              label={t('confirmPassword_lbl')}
               value={confirmedPassword}
               onChange={(e) => setConfirmedPassword(e.target.value)}
               validate={validateConfirmedPassword}
@@ -231,7 +234,7 @@ const AuthComponent = () => {
               />
             <FloatingLabelInputWithError
               type="text"
-              label="Name"
+              label={t('name_lbl')}
               value={name}
               onChange={handleNameChange}
               validate={validateName}
@@ -239,7 +242,7 @@ const AuthComponent = () => {
             />
             <FloatingLabelInputWithError
               type="text"
-              label="Username"
+              label={t('username_lbl')}
               value={username}
               onChange={handleUsernameChange}
               validate={validateUsername}
@@ -250,9 +253,9 @@ const AuthComponent = () => {
               onChange={(e) => setTermsAccepted(e.target.checked)}
               label={
                 <span>
-                  I accept the{' '}
+                  {t('acceptTerms_prefix')}{' '}
                   <a href="/terms" target="_blank" rel="noopener noreferrer">
-                    terms and conditions
+                    {t('acceptTerms_link')}
                   </a>
                 </span>
               }
@@ -265,17 +268,17 @@ const AuthComponent = () => {
           <ErrorMessage $show={true}>{error}</ErrorMessage>
         )}
         {(error && !isSignUp) && (
-          <ErrorMessage $show={true}>{error}<ForgotPasswordLink href={`/masseur/forgot-password?email=${encodedEmail}`}>Forgot password?</ForgotPasswordLink></ErrorMessage>
+          <ErrorMessage $show={true}>{error}<ForgotPasswordLink href={`/masseur/forgot-password?email=${encodedEmail}`}>{t('forgotPassword_link')}</ForgotPasswordLink></ErrorMessage>
         )}
         <PrimaryButton type="submit" $fill={true}>
-          {isSignUp ? 'Sign Up' : 'Log In'}
+          {isSignUp ? t('signUp_act') : t('logIn_act')}
         </PrimaryButton>
       </form>
       <SwitchAuthButton onClick={() => {
           setError(null);
           setIsSignUp(!isSignUp);
         }}>
-        {isSignUp ? 'Switch to Log In' : 'Switch to Sign Up'}
+        {isSignUp ? t('switchToLogIn_link') : t('switchToSignUp_link')}
       </SwitchAuthButton>
     </AuthContainer>
   );

@@ -4,7 +4,7 @@ import FloatingLabelTimePickerWithError from './FloatingLabelTimePickerWithError
 import PrimaryButton from './PrimaryButton';
 import styled from 'styled-components';
 import SecondaryButton from './SecondaryButton';
-import { Heading2 } from './Heading';
+import { useTranslation } from 'react-i18next';
 import ErrorMessage from './ErrorMessage';
 
 const TimeWindowCreatorWrapper = styled.div`
@@ -56,6 +56,8 @@ const TimeWindowCreator = ({ onCreate }) => {
   });
   const [combinedError, setCombinedError] = useState('');
 
+  const { t } = useTranslation();
+
   const reset = () => {
     setDate(tomorrow());
     setStartTime('10:00');
@@ -87,7 +89,7 @@ const TimeWindowCreator = ({ onCreate }) => {
       setExpanded(false);
       reset();
     } else {
-      alert('Please select both start time and duration.');
+      console.log("Missing startTime or endTime")
     }
   };
 
@@ -106,18 +108,6 @@ const TimeWindowCreator = ({ onCreate }) => {
     reset();
   }
 
-  /*
-  const handleError = (error, key) => {
-    console.log("handleError error: " + error + " key: " + key)
-    console.log("handleError errors:" + JSON.stringify(errors))
-    setErrors((prevErrors) => {
-      const newErrors = { ...prevErrors, [key]: error };
-      const firstError = Object.values(newErrors).find((err) => err);
-      setCombinedError(firstError || '');
-      return newErrors;
-    });
-  };
-  */
   const handleError = (error, key) => {
     setErrors((prevErrors) => {
       // Check if the error for this key is different from the existing one
@@ -140,7 +130,7 @@ const TimeWindowCreator = ({ onCreate }) => {
   };  
 
   const validateDate = (date) => {
-    if (!date) return 'Date is required';
+    if (!date) return t('dateRequired_msg'); // 'Date is required';
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -148,21 +138,21 @@ const TimeWindowCreator = ({ onCreate }) => {
     const selectedDate = new Date(date);
 
     if (selectedDate < today) {
-      return 'Date cannot be in the past';
+      return t('dateNotInPast_msg'); // 'Date cannot be in the past';
     }
 
     const maxDate = new Date();
     maxDate.setMonth(maxDate.getMonth() + 6);
 
     if (selectedDate > maxDate) {
-      return 'Date cannot be more than 6 months in the future';
+      return t('dateNotTooFarFuture_msg'); // 'Date cannot be more than 6 months in the future';
     }
 
     return '';
   };
 
   const validateEndTime = (endTime) => {
-    if (!startTime || !endTime) return 'Start time and end time are required';
+    if (!startTime || !endTime) return t('startTimeAndEndTimeRequired_msg'); // 'Start time and end time are required';
 
     const [startHours, startMinutes] = startTime.split(':').map(Number);
     const [endHours, endMinutes] = endTime.split(':').map(Number);
@@ -176,7 +166,7 @@ const TimeWindowCreator = ({ onCreate }) => {
     const differenceInMinutes = (endDate - startDate) / (1000 * 60);
 
     if (differenceInMinutes < 90) {
-      return 'End time must be at least 90 minutes after start time';
+      return t('timeWindowMinimum_msg'); // 'End time must be at least 90 minutes after start time';
     }
 
     return '';
@@ -191,7 +181,7 @@ const TimeWindowCreator = ({ onCreate }) => {
       <TimeWindowCreatorWrapper>
         {!isExpanded && (
           <form onSubmit={handleCreateNewAvailability}>
-              <PrimaryButton type="submit">Create New Availability</PrimaryButton>
+              <PrimaryButton type="submit">{t('createNewAvailability_act')}</PrimaryButton>
           </form>
         )}
         {isExpanded && (
@@ -201,7 +191,7 @@ const TimeWindowCreator = ({ onCreate }) => {
                 <FloatingLabelDatePickerWithError
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  label="Date"
+                  label={t('date_lbl')}
                   minDate={new Date()}
                   validate={validateDate}
                   forceValidate={forceValidate}
@@ -212,7 +202,7 @@ const TimeWindowCreator = ({ onCreate }) => {
                 <FloatingLabelTimePickerWithError
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  label="Start Time"
+                  label={t('startTime_lbl')}
                   validate={undefined}
                   forceValidate={forceValidate}
                   errorDelegate={(error) => handleError(error, 'startTime')}
@@ -222,7 +212,7 @@ const TimeWindowCreator = ({ onCreate }) => {
                 <FloatingLabelTimePickerWithError
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  label="End Time"
+                  label={t('endTime_lbl')}
                   validate={validateEndTime}
                   forceValidate={undefined}
                   errorDelegate={(error) => handleError(error, 'endTime')}
@@ -231,8 +221,8 @@ const TimeWindowCreator = ({ onCreate }) => {
             </FlexContainer>
             <ErrorMessage height={18} $show={true}>{combinedError}</ErrorMessage>
             <ButtonContainer>
-              <SecondaryButton onClick={handleCancel}>Cancel</SecondaryButton>
-              <PrimaryButton type="submit">Create</PrimaryButton>
+              <SecondaryButton onClick={handleCancel}>{t('cancel_act')}</SecondaryButton>
+              <PrimaryButton type="submit">{t('create_act')}</PrimaryButton>
             </ButtonContainer>
           </form>
         )}
