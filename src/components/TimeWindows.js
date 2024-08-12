@@ -7,6 +7,8 @@ import { db } from '../firebaseConfig'; // Assumes you're using Firebase
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { auth } from '../firebaseConfig';
 import { createTimeWindow } from '../model/timeWindows';
+import TimeWindowsCalendarContainer from './TimeWindowsCalendarContainer';
+
 
 const TimeWindowsWrapper = styled.div`
   width: 100%;
@@ -18,11 +20,6 @@ const TimeWindowsWrapper = styled.div`
 
 const TimeWindowsCalendarContainerWrapper = styled.div`
   width: 100%;
-`;
-
-const TimeWindowsCalendarContainer = styled.div`
-  width: 100%;
-  background-color: red;
 `;
 
 const TimeWindowCreatorWrapper = styled.div`

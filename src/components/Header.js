@@ -18,7 +18,7 @@ const HeaderContainer = styled.header`
 `;
 
 const ContentWrapper = styled.div`
-  max-width: 1000px;
+  max-width: 1040px;
   width: 100%;
   padding: 0 16px; /* 16px margin on smaller screens */
   box-sizing: border-box;
@@ -55,7 +55,7 @@ const MenuBar = styled.div`
 `;
 
 const MenuContainer = styled.nav`
-  max-width: 1000px;
+  max-width: 1040px;
   width: 100%;
   padding: 10px 16px;
   box-sizing: border-box;

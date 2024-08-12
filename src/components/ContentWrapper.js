@@ -2,7 +2,7 @@
 import styled from 'styled-components';
 
 const ContentWrapper = styled.div`
-  max-width: 1000px;
+  max-width: 1040px;
   width: 100%;
   padding: 0 ${(props) => props.theme.dimens.sideMargin}px;
   margin: 0 auto; /* Centers the content */
