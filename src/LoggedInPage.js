@@ -9,9 +9,8 @@ import Header from './components/Header';
 import ContentWrapper from './components/ContentWrapper';
 import SecondaryButton from './components/SecondaryButton';
 import { useTheme } from 'styled-components';
-import TimeWindowCreator from './components/TimeWindowCreator';
+import TimeWindows from './components/TimeWindows';
 import { Heading1 } from './components/Heading';
-import { createTimeWindow } from './model/timeWindows';
 import { useTranslation } from 'react-i18next';
 
 
@@ -85,11 +84,6 @@ const LoggedInPage = () => {
     navigate('/'); // Redirect to the home page after logout
   };
 
-  const handleCreateTimeWindow = ({ startTime, endTime }) => {
-    if (user) {
-      createTimeWindow(db, startTime, endTime, user.uid)
-    }
-  }
 
   const menuItems = null; //['Home', 'About', 'Services', 'Contact'];
 
@@ -110,7 +104,7 @@ const LoggedInPage = () => {
         {isEmailVerified && (
           <>
           <p>{t('loggedIn_msg')}</p>
-          <TimeWindowCreator onCreate={handleCreateTimeWindow} />
+          <TimeWindows />
           </>
         )}
         <SecondaryButton onClick={handleLogout}>{t('logout_act')}</SecondaryButton>
