@@ -64,5 +64,12 @@
   "changes-to-terms.msg": "Audun Steinholm reserves the right to modify these terms at any time. Any changes will be posted on this page, and it is your responsibility to review these terms periodically. Your continued use of the site after any changes indicates your acceptance of the new terms.",
   "7-governing-law.title": "7. Governing Law",
   "governing-law.msg": "These terms and conditions are governed by and construed in accordance with the laws of Norway. Any disputes relating to these terms and conditions will be subject to the exclusive jurisdiction of the courts of Norway. This is applicable even when masseurs and clients are located in different countries.",
-  "terms-questions.prefix": "If you have any questions about these terms, please contact Audun Steinholm at"
+  "terms-questions.prefix": "If you have any questions about these terms, please contact Audun Steinholm at",
+  "mon.lbl": "Mon",
+  "tue.lbl": "Tue",
+  "wed.lbl": "Wed",
+  "thu.lbl": "Thu",
+  "fri.lbl": "Fri",
+  "sat.lbl": "Sat",
+  "sun.lbl": "Sun"
 }

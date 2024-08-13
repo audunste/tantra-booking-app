@@ -22,11 +22,13 @@ const TimeWindowsCalendarContainer = ({ groupedTimeWindows }) => {
 
   useEffect(() => {
     // Map grouped time windows to calendar components
-    const calendarComponents = Object.entries(groupedTimeWindows).map(
-      ([monthYear, windows], index) => (
+    const calendarComponents = Object.entries(groupedTimeWindows)
+    .sort(([a], [b]) => a.localeCompare(b)) // Sort the entries by the key
+    .map(
+      ([yearMonth, windows], index) => (
         <TimeWindowsCalendar
-          key={monthYear}
-          monthYear={monthYear}
+          key={yearMonth}
+          yearMonth={yearMonth}
           windows={windows}
           index={index}
         />
@@ -72,7 +74,6 @@ const TimeWindowsCalendarContainer = ({ groupedTimeWindows }) => {
   };
 
   const columnWidth = calculateColumnWidth();
-  console.log("columnWidth: " + columnWidth, calendars)
 
   return (
     <Container

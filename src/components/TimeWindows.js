@@ -26,18 +26,18 @@ const TimeWindowCreatorWrapper = styled.div`
   width: 100%;
 `;
 
-const groupByMonthYear = (windows) => {
+const groupByYearMonth = (windows) => {
   const grouped = {};
 
   windows.forEach((window) => {
     const startDate = new Date(window.startTime);
-    const monthYear = `${startDate.getMonth() + 1}-${startDate.getFullYear()}`;
+    const yearMonth = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}`;
 
-    if (!grouped[monthYear]) {
-      grouped[monthYear] = [];
+    if (!grouped[yearMonth]) {
+      grouped[yearMonth] = [];
     }
 
-    grouped[monthYear].push(window);
+    grouped[yearMonth].push(window);
   });
 
   // Sort each month's windows by startTime
@@ -59,11 +59,11 @@ const TimeWindows = () => {
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const windows = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        // Group and sort the windows by month-year
-        const grouped = groupByMonthYear(windows);
+        // Group and sort the windows by year-month
+        const grouped = groupByYearMonth(windows);
         setGroupedTimeWindows(grouped);
 
-        console.log('Grouped and sorted time windows:', grouped); // Log the grouped windows for now
+        console.log('Grouped time windows:', grouped);
       }, (error) => {
         console.error('Error fetching time windows:', error);
       });

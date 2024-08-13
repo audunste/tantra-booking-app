@@ -19,12 +19,13 @@ const PrimaryButton = styled.button`
   border-radius: 50px; /* Pill-shaped button */
   cursor: pointer;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-  transition: background 0.3s;
+  transition: background 0.15s;
 
   &:hover {
     background: linear-gradient(to right,
-      ${(props) => props.disabled ? props.theme.colors.disabled : props.theme.colors.gradientStart},
-      ${(props) => props.disabled ? props.theme.colors.disabled : props.theme.colors.gradientEnd}
+    ${(props) => props.disabled ? props.theme.colors.disabled : props.theme.colors.gradientStartHover},
+    ${(props) => props.disabled ? props.theme.colors.disabled : props.theme.colors.primaryHover},
+    ${(props) => props.disabled ? props.theme.colors.disabled : props.theme.colors.gradientEndHover}
     );
   }
 
