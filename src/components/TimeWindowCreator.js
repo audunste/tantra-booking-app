@@ -28,6 +28,7 @@ const DatePickerWrapper = styled.div`
 
 const TimePickerWrapper = styled.div`
   flex: 1;
+  background-color: ${(props) => props.theme.colors.background};
 `;
 
 const ButtonContainer = styled.div`

@@ -8,6 +8,7 @@ const TimePickerWrapper = styled.div`
   width: 100%;
   position: relative;
   margin: 10px 0 0 0;
+  background-color: inherit;
 `;
 
 const StyledTimeInput = styled.input`
@@ -25,7 +26,7 @@ const StyledTimeInput = styled.input`
   box-sizing: border-box;
   outline: none;
   transition: border-color 0.2s;
-  background-color: ${(props) => props.theme.colors.background};
+  background-color: inherit;
   color: ${(props) => props.theme.colors.text};
   
   /* Improve consistency in text rendering */
@@ -46,7 +47,7 @@ const StyledTimeInput = styled.input`
     font-size: 0.75em;
     color: ${(props) =>
       props.$hasError ? props.theme.colors.error : props.theme.colors.border};
-    background-color: ${(props) => props.theme.colors.background};
+    background-color: inherit;
     padding: 0 4px;
   }
 
@@ -55,7 +56,7 @@ const StyledTimeInput = styled.input`
     font-size: 0.75em;
     color: ${(props) =>
       props.$hasError ? props.theme.colors.error : props.theme.colors.primary};
-    background-color: ${(props) => props.theme.colors.background};
+    background-color: inherit;
     padding: 0 4px;
   }
 `;
@@ -70,7 +71,7 @@ const Label = styled.label`
     : (props.$hasValue
       ? props.theme.colors.border
       : props.theme.colors.secondaryText))};
-  background-color: ${(props) => props.theme.colors.background};
+  background-color: inherit;
   transition: all 0.2s;
   pointer-events: none;
   padding: 0 4px; /* Adds padding to avoid text clipping */

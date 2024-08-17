@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { getDateFnsLocale } from '../util/getDateFnsLocale';
 import RowWithLabelAndButton from './RowWithLabelAndButton';
 import { FiPlus, FiEdit } from 'react-icons/fi'; // Importing icons from react-icons
+import MiniTimeWindowCreator from './MiniTimeWindowCreator';
 
 const HeaderWrapper = styled.div`
   display: flex;
@@ -43,6 +44,7 @@ const RowContainer = styled.div`
   flex-direction: column;
   gap: 8px; /* Adjust the gap as needed for spacing between rows */
   padding: 8px; /* Add padding inside the container for inner spacing */
+  background-color: ${(props) => props.theme.colors.secondaryBackground};
 `;
 
 const Spacer = styled.div`
@@ -91,6 +93,7 @@ const DayDetails = ({ onBack, title, windows, bookings }) => {
             borderlessButton
           />
         ))}
+        <MiniTimeWindowCreator onCreate={(w) => {}} onCancel={() => {}} />
       </RowContainer>
     </DayDetailsWrapper>
   );
