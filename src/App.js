@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { auth } from './firebaseConfig';
@@ -77,10 +76,38 @@ function App() {
     // Check the current size on load
     detectPhoneSize(mediaQueryPhone);
 
+    // Function to detect if the device can hover
+    const detectCanHover = (e) => {
+      if (e.matches) {
+        setTheme((prevTheme) => ({
+          ...prevTheme,
+          capabilities: {
+            ...prevTheme.capabilities,
+            canHover: true, // Device can hover
+          },
+        }));
+      } else {
+        setTheme((prevTheme) => ({
+          ...prevTheme,
+          capabilities: {
+            ...prevTheme.capabilities,
+            canHover: false, // Device cannot hover
+          },
+        }));
+      }
+    };
+
+    const mediaQueryHover = window.matchMedia('(hover: hover)');
+    mediaQueryHover.addEventListener('change', detectCanHover);
+
+    // Set the hover capability initially based on the system preference
+    detectCanHover(mediaQueryHover);
+
     // Cleanup the event listeners on unmount
     return () => {
       mediaQueryDark.removeEventListener('change', detectDarkMode);
       mediaQueryPhone.removeEventListener('change', detectPhoneSize);
+      mediaQueryHover.removeEventListener('change', detectCanHover);
     };
   }, []);
 
