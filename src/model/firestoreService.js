@@ -43,6 +43,40 @@ const createTimeWindow = async (startTime, endTime, doMerge = true) => {
   }
 };
 
+const editTimeWindow = async (window, startTime, endTime, doMerge = true) => {
+  try {
+    if (!auth.currentUser) {
+      console.error("Error editing time window: No auth.currentUser");
+      return
+    }
+    await updateDoc(doc(db, 'timeWindows', window.id), {
+      startTime,
+      endTime,
+    });
+
+    console.log("Time window edited with ID: ", window.id);
+    if (doMerge) {
+      await mergeTimeWindows();
+    }
+  } catch (error) {
+    console.error("Error editing time window: ", error);
+  }
+};
+
+const deleteTimeWindow = async (window) => {
+  try {
+    if (!auth.currentUser) {
+      console.error("Error deleting time window: No auth.currentUser");
+      return
+    }
+    await deleteDoc(doc(db, 'timeWindows', window.id));
+
+    console.log("Time window deleted with ID: ", window.id);
+  } catch (error) {
+    console.error("Error deleting time window: ", error);
+  }
+};
+
 const mergeTimeWindows = async () => {
   try {
     const masseurId = auth.currentUser.uid;
@@ -104,4 +138,4 @@ const mergeTimeWindows = async () => {
 };
 
 
-export { addDocument, getDocuments, createTimeWindow, mergeTimeWindows };
+export { addDocument, getDocuments, createTimeWindow, mergeTimeWindows, editTimeWindow, deleteTimeWindow };

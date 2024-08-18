@@ -71,5 +71,6 @@
   "thu.lbl": "Thu",
   "fri.lbl": "Fri",
   "sat.lbl": "Sat",
-  "sun.lbl": "Sun"
+  "sun.lbl": "Sun",
+  "confirm-delete.msg": "Confirm delete {{timeWindow}}?"
 }

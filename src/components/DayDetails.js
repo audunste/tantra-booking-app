@@ -7,7 +7,8 @@ import RowWithLabelAndButton from './RowWithLabelAndButton';
 import { FiPlus, FiEdit } from 'react-icons/fi'; // Importing icons from react-icons
 import MiniTimeWindowCreator from './MiniTimeWindowCreator';
 import { useState } from 'react';
-import { createTimeWindow, mergeTimeWindows } from '../model/firestoreService';
+import { createTimeWindow, editTimeWindow, deleteTimeWindow } from '../model/firestoreService';
+import { timeRangeFromWindow } from '../util/timeWindowUtil';
 
 const HeaderWrapper = styled.div`
   display: flex;
@@ -65,6 +66,7 @@ const DayDetailsHeader = ({ title, onBack }) => {
 
 const DayDetails = ({ date, onBack, windows, bookings }) => {
   const [isMakingNew, setMakingNew] = useState(false);
+  const [windowBeingEdited, setWindowBeingEdited] = useState(null);
 
   const { t, i18n } = useTranslation();
   const fnsLocale = getDateFnsLocale(i18n.language);
@@ -74,7 +76,7 @@ const DayDetails = ({ date, onBack, windows, bookings }) => {
   };
 
   const startEdit = (window) => {
-    console.log('startEdit');
+    setWindowBeingEdited(window);
   }
 
   return (
@@ -83,23 +85,35 @@ const DayDetails = ({ date, onBack, windows, bookings }) => {
       <RowContainer>
         <RowWithLabelAndButton
           label={windows.length > 0 ? t('Available') : t('No availability')}
-          buttonContent={isMakingNew ? null : <FiPlus size={18} style={{ verticalAlign: 'middle' }} />}
+          buttonContent={(isMakingNew || windowBeingEdited) ? null : <FiPlus size={18} style={{ verticalAlign: 'middle' }} />}
           onButtonClick={handleNewAvailability}
         />
         {windows.map((window, index) => (
-          <RowWithLabelAndButton
-            key={index}
-            label={
-              format(new Date(window.startTime), 'p', { locale: fnsLocale }) +
-              ' - ' +
-              format(new Date(window.endTime), 'p', { locale: fnsLocale })
-            }
-            indentation="8px"
-            buttonContent={isMakingNew ? null : <FiEdit size={18} style={{ verticalAlign: 'middle' }} />}
-            onButtonClick={() => startEdit(window)}
-            hoverButton
-            borderlessButton
-          />
+          (windowBeingEdited && (window.id === windowBeingEdited.id)) ? (
+            <MiniTimeWindowCreator
+              key={index}
+              window={window}
+              onCreate={({ startTime, endTime }) => {
+                setWindowBeingEdited(null);
+                editTimeWindow(window, startTime, endTime);
+              }}
+              onCancel={() => setWindowBeingEdited(null)}
+              onDelete={(w) => {
+                setWindowBeingEdited(null);
+                deleteTimeWindow(window);
+              }}
+            />
+          ) : (
+            <RowWithLabelAndButton
+              key={index}
+              label={timeRangeFromWindow(window)}
+              indentation="8px"
+              buttonContent={isMakingNew ? null : <FiEdit size={18} style={{ verticalAlign: 'middle' }} />}
+              onButtonClick={() => startEdit(window)}
+              hoverButton
+              borderlessButton
+            />
+          )
         ))}
         {isMakingNew && <MiniTimeWindowCreator date={date} onCreate={({ startTime, endTime }) => {
           setMakingNew(false)

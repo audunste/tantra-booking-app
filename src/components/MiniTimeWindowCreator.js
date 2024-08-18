@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import FloatingLabelTimePickerWithError from './FloatingLabelTimePickerWithError';
-import { FiX, FiCheck } from 'react-icons/fi'; // Importing icons
+import { FiX, FiCheck, FiTrash2 } from 'react-icons/fi'; // Importing icons
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import ErrorMessage from './ErrorMessage';
-import { createTimeWindow } from '../model/firestoreService';
+import { timeRangeFromWindow } from '../util/timeWindowUtil';
 
 const MiniTimeWindowCreatorWrapper = styled.div`
   width: 100%;
@@ -28,6 +28,19 @@ const FlexContainer = styled.div`
 const TimePickerWrapper = styled.div`
   flex: 1;
   background-color: inherit;
+`;
+
+const MessageWrapper = styled.div`
+  flex: 1;
+  background-color: inherit;
+  display: flex;
+  align-items: center;  /* Vertically center the content */
+  justify-content: flex-start; /* Horizontally align content to the left */
+  text-align: left; /* Ensure text is left-aligned */
+  //padding-left: 8px; /* Optional: Add some padding to create space from the left edge */
+  height: 42px;
+  padding-top: 8px;
+  padding-left: 8px;
 `;
 
 const ButtonContainer = styled.div`
@@ -54,7 +67,8 @@ const IconButton = styled.button`
   }
 `;
 
-const MiniTimeWindowCreator = ({ date, onCreate, onCancel }) => {
+const MiniTimeWindowCreator = ({ date = null, window = null, onCreate, onCancel, onDelete }) => {
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [startTime, setStartTime] = useState('10:00');
   const [endTime, setEndTime] = useState('14:00');
   const [forceValidate, setForceValidate] = useState(false);
@@ -63,6 +77,20 @@ const MiniTimeWindowCreator = ({ date, onCreate, onCancel }) => {
     endTime: '',
   });
   const [combinedError, setCombinedError] = useState('');
+
+  useEffect(() => {
+    if (window) {
+      setStartTime(isoStringToTime(window.startTime));
+      setEndTime(isoStringToTime(window.endTime));
+    }
+  }, [window]);
+
+  const isoStringToTime = (isoString) => {
+    const date = new Date(isoString);
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
 
   const { t } = useTranslation();
 
@@ -83,10 +111,10 @@ const MiniTimeWindowCreator = ({ date, onCreate, onCancel }) => {
       const [startHours, startMinutes] = startTime.split(':').map(Number);
       const [endHours, endMinutes] = endTime.split(':').map(Number);
 
-      const startDateTime = new Date(date);
+      const startDateTime = new Date(window == null ? date : window.startTime);
       startDateTime.setHours(startHours, startMinutes, 0, 0);
 
-      const endDateTime = new Date(date);
+      const endDateTime = new Date(startDateTime);
       endDateTime.setHours(endHours, endMinutes, 0, 0);
 
       onCreate({
@@ -142,31 +170,65 @@ const MiniTimeWindowCreator = ({ date, onCreate, onCancel }) => {
   return (
     <MiniTimeWindowCreatorWrapper>
       <FlexContainer>
-        <TimePickerWrapper>
-          <FloatingLabelTimePickerWithError
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-            label={t('startTime_lbl')}
-            validate={undefined}
-            forceValidate={forceValidate}
-            errorDelegate={(error) => handleError(error, 'startTime')}
-          />
-        </TimePickerWrapper>
-        <TimePickerWrapper>
-          <FloatingLabelTimePickerWithError
-            value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
-            label={t('endTime_lbl')}
-            validate={validateEndTime}
-            forceValidate={forceValidate}
-            errorDelegate={(error) => handleError(error, 'endTime')}
-          />
-        </TimePickerWrapper>
+        {confirmDelete ? (
+          <MessageWrapper>
+            {t('confirm-delete.msg', { timeWindow: timeRangeFromWindow(window) })}
+          </MessageWrapper>
+        ) : (
+          <>
+          <TimePickerWrapper>
+            <FloatingLabelTimePickerWithError
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              label={t('startTime_lbl')}
+              validate={undefined}
+              forceValidate={forceValidate}
+              errorDelegate={(error) => handleError(error, 'startTime')}
+            />
+          </TimePickerWrapper>
+          <TimePickerWrapper>
+            <FloatingLabelTimePickerWithError
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              label={t('endTime_lbl')}
+              validate={validateEndTime}
+              forceValidate={forceValidate}
+              errorDelegate={(error) => handleError(error, 'endTime')}
+            />
+          </TimePickerWrapper>
+          </>
+        )}
         <ButtonContainer>
-          <IconButton onClick={onCancel}>
+          {(window && !confirmDelete) && (
+            <IconButton onClick={(e) => {
+              e.preventDefault()
+              setConfirmDelete(true)
+            }}>
+              <FiTrash2 />
+            </IconButton>
+          )}
+          <IconButton onClick={(e) => {
+            e.preventDefault()
+            if (confirmDelete) {
+              setConfirmDelete(false)
+            } else {
+              onCancel(e)
+            }
+          }}>
             <FiX />
           </IconButton>
-          <IconButton onClick={createInvalid ? handleInvalidSubmit : handleSubmit}>
+          <IconButton onClick={(e) => {
+            e.preventDefault()
+            if (confirmDelete) {
+              onDelete(e)
+            } else {
+              if (createInvalid) {
+                handleInvalidSubmit(e)
+              } else {
+                handleSubmit(e)
+              }
+            }
+          }}>
             <FiCheck />
           </IconButton>
         </ButtonContainer>
