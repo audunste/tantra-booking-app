@@ -8,7 +8,7 @@ const DatePickerWrapper = styled.div`
   width: 100%;
   display: block;
   position: relative;
-  margin: 10px 0 0 0;
+  margin: 8px 0 0 0;
 `;
 
 const StyledDateInput = styled.input`

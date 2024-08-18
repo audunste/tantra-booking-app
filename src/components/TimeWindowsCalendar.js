@@ -104,6 +104,8 @@ const BackButton = styled.button`
 `;
 
 const TimeWindowsCalendar = ({ yearMonth, windows }) => {
+  const [selectedDay, setSelectedDay] = useState(null);
+
   const { t, i18n } = useTranslation();
   const [year, month] = yearMonth.split('-');
   const date = new Date(year, month - 1);
@@ -127,7 +129,6 @@ const TimeWindowsCalendar = ({ yearMonth, windows }) => {
 
   const fnsLocale = getDateFnsLocale(i18n.language);
 
-  const [selectedDay, setSelectedDay] = useState(null);
 
   const handleDayClick = (day) => {
     setSelectedDay(day);
@@ -180,8 +181,8 @@ const TimeWindowsCalendar = ({ yearMonth, windows }) => {
         </>
       ) : (
         <DayDetails 
+          date={selectedDay}
           onBack={handleBackClick}
-          title={format(selectedDay, 'PPP', { locale: fnsLocale })} 
           windows={selectedDayWindows}
         />
       )}

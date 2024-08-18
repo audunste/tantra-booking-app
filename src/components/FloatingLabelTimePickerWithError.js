@@ -7,7 +7,7 @@ import ErrorMessage from './ErrorMessage';
 const TimePickerWrapper = styled.div`
   width: 100%;
   position: relative;
-  margin: 10px 0 0 0;
+  margin: 8px 0 0 0;
   background-color: inherit;
 `;
 

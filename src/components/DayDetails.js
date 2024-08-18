@@ -6,6 +6,8 @@ import { getDateFnsLocale } from '../util/getDateFnsLocale';
 import RowWithLabelAndButton from './RowWithLabelAndButton';
 import { FiPlus, FiEdit } from 'react-icons/fi'; // Importing icons from react-icons
 import MiniTimeWindowCreator from './MiniTimeWindowCreator';
+import { useState } from 'react';
+import { createTimeWindow, mergeTimeWindows } from '../model/firestoreService';
 
 const HeaderWrapper = styled.div`
   display: flex;
@@ -61,21 +63,27 @@ const DayDetailsHeader = ({ title, onBack }) => {
   );
 };
 
-const DayDetails = ({ onBack, title, windows, bookings }) => {
+const DayDetails = ({ date, onBack, windows, bookings }) => {
+  const [isMakingNew, setMakingNew] = useState(false);
+
   const { t, i18n } = useTranslation();
   const fnsLocale = getDateFnsLocale(i18n.language);
 
   const handleNewAvailability = () => {
-    console.log('handleNewAvailability');
+    setMakingNew(true);
   };
+
+  const startEdit = (window) => {
+    console.log('startEdit');
+  }
 
   return (
     <DayDetailsWrapper>
-      <DayDetailsHeader onBack={onBack} title={title} />
+      <DayDetailsHeader onBack={onBack} title={format(date, 'PPP', { locale: fnsLocale })} />
       <RowContainer>
         <RowWithLabelAndButton
           label={windows.length > 0 ? t('Available') : t('No availability')}
-          buttonContent={<FiPlus size={18} style={{ verticalAlign: 'middle' }} />}
+          buttonContent={isMakingNew ? null : <FiPlus size={18} style={{ verticalAlign: 'middle' }} />}
           onButtonClick={handleNewAvailability}
         />
         {windows.map((window, index) => (
@@ -87,13 +95,16 @@ const DayDetails = ({ onBack, title, windows, bookings }) => {
               format(new Date(window.endTime), 'p', { locale: fnsLocale })
             }
             indentation="8px"
-            buttonContent={<FiEdit size={18} style={{ verticalAlign: 'middle' }} />}
-            onButtonClick={handleNewAvailability}
+            buttonContent={isMakingNew ? null : <FiEdit size={18} style={{ verticalAlign: 'middle' }} />}
+            onButtonClick={() => startEdit(window)}
             hoverButton
             borderlessButton
           />
         ))}
-        <MiniTimeWindowCreator onCreate={(w) => {}} onCancel={() => {}} />
+        {isMakingNew && <MiniTimeWindowCreator date={date} onCreate={({ startTime, endTime }) => {
+          setMakingNew(false)
+          createTimeWindow(startTime, endTime)
+        }} onCancel={() => setMakingNew(false)} />}
       </RowContainer>
     </DayDetailsWrapper>
   );

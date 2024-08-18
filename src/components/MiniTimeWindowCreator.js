@@ -4,6 +4,7 @@ import { FiX, FiCheck } from 'react-icons/fi'; // Importing icons
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import ErrorMessage from './ErrorMessage';
+import { createTimeWindow } from '../model/firestoreService';
 
 const MiniTimeWindowCreatorWrapper = styled.div`
   width: 100%;
@@ -53,7 +54,7 @@ const IconButton = styled.button`
   }
 `;
 
-const MiniTimeWindowCreator = ({ onCreate, onCancel }) => {
+const MiniTimeWindowCreator = ({ date, onCreate, onCancel }) => {
   const [startTime, setStartTime] = useState('10:00');
   const [endTime, setEndTime] = useState('14:00');
   const [forceValidate, setForceValidate] = useState(false);
@@ -82,10 +83,10 @@ const MiniTimeWindowCreator = ({ onCreate, onCancel }) => {
       const [startHours, startMinutes] = startTime.split(':').map(Number);
       const [endHours, endMinutes] = endTime.split(':').map(Number);
 
-      const startDateTime = new Date();
+      const startDateTime = new Date(date);
       startDateTime.setHours(startHours, startMinutes, 0, 0);
 
-      const endDateTime = new Date();
+      const endDateTime = new Date(date);
       endDateTime.setHours(endHours, endMinutes, 0, 0);
 
       onCreate({

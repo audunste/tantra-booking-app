@@ -6,7 +6,7 @@ import TimeWindowCreator from './TimeWindowCreator';
 import { db } from '../firebaseConfig'; // Assumes you're using Firebase
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { auth } from '../firebaseConfig';
-import { createTimeWindow } from '../model/timeWindows';
+import { createTimeWindow } from '../model/firestoreService';
 import TimeWindowsCalendarContainer from './TimeWindowsCalendarContainer';
 
 
@@ -73,19 +73,15 @@ const TimeWindows = () => {
     }
   }, [user]);
 
-  const handleCreateTimeWindow = ({ startTime, endTime }) => {
-    if (user) {
-      createTimeWindow(db, startTime, endTime, user.uid);
-    }
-  };
-
   return (
     <TimeWindowsWrapper>
       <TimeWindowsCalendarContainerWrapper>
         <TimeWindowsCalendarContainer groupedTimeWindows={groupedTimeWindows} />
       </TimeWindowsCalendarContainerWrapper>
       <TimeWindowCreatorWrapper>
-        <TimeWindowCreator onCreate={handleCreateTimeWindow} />
+        <TimeWindowCreator onCreate={({ startTime, endTime }) => {
+          createTimeWindow(startTime, endTime)
+        }} />
       </TimeWindowCreatorWrapper>
     </TimeWindowsWrapper>
   );
