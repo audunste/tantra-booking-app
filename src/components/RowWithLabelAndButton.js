@@ -23,10 +23,15 @@ const Label = styled.div`
   color: ${(props) => props.theme.colors.text};
 `;
 
+const ButtonFiller = styled.div`
+  width: 30px;
+  height: 30px;
+`
+
 const Button = styled.button`
   background: ${(props) => (props.$borderless ? 'transparent' : props.theme.colors.primary)};
   color: ${(props) => (props.$borderless ? props.theme.colors.primary : props.theme.colors.onPrimary)};
-  border: ${(props) => (props.$borderless ? 'none' : `1px solid ${props.theme.colors.primary}`)};
+  border: ${(props) => (props.$borderless ? '1px solid transparent' : `1px solid ${props.theme.colors.primary}`)};
   padding: 5px 5px;
   border-radius: 20px;
   cursor: pointer;
@@ -60,7 +65,7 @@ const RowWithLabelAndButton = ({
   return (
     <RowWrapper $hoverVisible={shouldHoverButton}>
       <Label $indentation={indentation}>{label}</Label>
-      {buttonContent && (
+      {buttonContent ? (
         <Button
           onClick={onButtonClick}
           className={shouldHoverButton ? 'hover-button' : ''}
@@ -69,6 +74,8 @@ const RowWithLabelAndButton = ({
         >
           {buttonContent}
         </Button>
+      ) : (
+        <ButtonFiller />
       )}
     </RowWrapper>
   );

@@ -15,27 +15,39 @@ const Container = styled.div`
   width: 100%;
 `;
 
-const TimeWindowsCalendarContainer = ({ groupedTimeWindows }) => {
+const TimeWindowsCalendarContainer = ({ groupedData }) => {
+  // Key: yearMonth ex "2024-12"
+  // Value: object ex {
+  //   timeWindows: [
+  //     { startTime, endTime, ... }, ...
+  //   ],
+  //   bookings: [ {
+  //     publicBooking: { },
+  //     privateBooking: { }
+  //   } ]
+  // }
+
   const [calendars, setCalendars] = useState([]);
   const [containerWidth, setContainerWidth] = useState(0);
   const theme = useTheme();
 
   useEffect(() => {
     // Map grouped time windows to calendar components
-    const calendarComponents = Object.entries(groupedTimeWindows)
+    const calendarComponents = Object.entries(groupedData)
     .sort(([a], [b]) => a.localeCompare(b)) // Sort the entries by the key
     .map(
-      ([yearMonth, windows], index) => (
+      ([yearMonth, data], index) => (
         <TimeWindowsCalendar
           key={yearMonth}
           yearMonth={yearMonth}
-          windows={windows}
+          windows={data.timeWindows}
+          bookings={data.bookings}
           index={index}
         />
       )
     );
     setCalendars(calendarComponents);
-  }, [groupedTimeWindows]);
+  }, [groupedData]);
 
   useEffect(() => {
     // Calculate the width of the container and determine the appropriate grid layout

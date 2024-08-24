@@ -103,7 +103,7 @@ const BackButton = styled.button`
   font-size: 1em;
 `;
 
-const TimeWindowsCalendar = ({ yearMonth, windows }) => {
+const TimeWindowsCalendar = ({ yearMonth, windows, bookings }) => {
   const [selectedDay, setSelectedDay] = useState(null);
 
   const { t, i18n } = useTranslation();
@@ -141,6 +141,10 @@ const TimeWindowsCalendar = ({ yearMonth, windows }) => {
   const selectedDayWindows = selectedDay
     ? windows.filter((window) => isSameDay(new Date(window.startTime), selectedDay))
     : undefined;
+
+  const selectedDaybookings = selectedDay
+    ? bookings.filter((b) => isSameDay(new Date(b.booking.startTime), selectedDay))
+    : undefined
 
   return (
     <CalendarWrapper>
@@ -184,6 +188,7 @@ const TimeWindowsCalendar = ({ yearMonth, windows }) => {
           date={selectedDay}
           onBack={handleBackClick}
           windows={selectedDayWindows}
+          bookings={selectedDaybookings}
         />
       )}
     </CalendarWrapper>

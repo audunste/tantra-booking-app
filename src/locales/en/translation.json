@@ -65,12 +65,9 @@
   "7-governing-law.title": "7. Governing Law",
   "governing-law.msg": "These terms and conditions are governed by and construed in accordance with the laws of Norway. Any disputes relating to these terms and conditions will be subject to the exclusive jurisdiction of the courts of Norway. This is applicable even when masseurs and clients are located in different countries.",
   "terms-questions.prefix": "If you have any questions about these terms, please contact Audun Steinholm at",
-  "mon.lbl": "Mon",
-  "tue.lbl": "Tue",
-  "wed.lbl": "Wed",
-  "thu.lbl": "Thu",
-  "fri.lbl": "Fri",
-  "sat.lbl": "Sat",
-  "sun.lbl": "Sun",
-  "confirm-delete.msg": "Confirm delete {{timeWindow}}?"
+  "confirm-delete.msg": "Confirm delete {{timeWindow}}?",
+  "available.msg": "Available",
+  "no-availability.msg": "No availability",
+  "bookings.msg": "Bookings",
+  "no-bookings.msg": "No Bookings"
 }

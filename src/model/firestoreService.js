@@ -1,6 +1,6 @@
 // src/model/firestoreService.js
 import { auth, db } from '../firebaseConfig';
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
 
 // Add a new document with a generated ID
 const addDocument = async (collectionName, data) => {
@@ -137,5 +137,85 @@ const mergeTimeWindows = async () => {
   }
 };
 
+const createBooking = async (masseurId, startTime, endTime, massageType, addons, name, email, phone = '', comment = '', clientId = null) => {
+  try {
+    const isGuest = !clientId;
 
-export { addDocument, getDocuments, createTimeWindow, mergeTimeWindows, editTimeWindow, deleteTimeWindow };
+    // Create a booking in the publicBookings collection
+    const publicBookingRef = await addDoc(collection(db, 'publicBookings'), {
+      startTime,
+      endTime,
+      masseurId,
+      isGuest,
+      privateBookingId: null,  // Placeholder for the ID of the privateBookings document
+    });
+
+    // Create the private booking details
+    const privateBookingRef = await addDoc(collection(db, 'privateBookings'), {
+      publicBookingId: publicBookingRef.id,
+      massageType,
+      addons,
+      name,
+      email,
+      phone,
+      comment,
+      clientId,
+    });
+
+    // Update the booking with the privateBookingId
+    await setDoc(doc(db, 'publicBookings', publicBookingRef.id), {
+      privateBookingId: privateBookingRef.id,
+    }, { merge: true });
+
+    console.log("Booking created with ID: ", publicBookingRef.id);
+    return publicBookingRef.id; // Return the document ID for further use
+  } catch (error) {
+    console.error("Error creating booking: ", error);
+  }
+};
+
+const editBooking = async (publicBookingId, updatedPublicFields, updatedPrivateFields) => {
+  try {
+    const publicBookingRef = doc(db, 'publicBookings', publicBookingId);
+
+    // Update the booking with the provided fields
+    await updateDoc(publicBookingRef, updatedPublicFields);
+
+    if (updatedPrivateFields) {
+      const privateBookingId = (await getDoc(publicBookingRef)).data().privateBookingId;
+      const privateBookingRef = doc(db, 'privateBookings', privateBookingId);
+
+      await updateDoc(privateBookingRef, updatedPrivateFields);
+    }
+
+    console.log("Booking updated with ID: ", publicBookingId);
+  } catch (error) {
+    console.error("Error updating booking: ", error);
+  }
+};
+
+const deleteBooking = async (publicBookingId) => {
+  try {
+    const publicBookingRef = doc(db, 'publicBookings', publicBookingId);
+    const privateBookingId = (await getDoc(publicBookingRef)).data().privateBookingId;
+    const privateBookingRef = doc(db, 'privateBookings', privateBookingId);
+
+    await deleteDoc(publicBookingRef);
+    await deleteDoc(privateBookingRef);
+
+    console.log("Booking deleted with ID: ", publicBookingId);
+  } catch (error) {
+    console.error("Error deleting booking: ", error);
+  }
+};
+
+export {
+  addDocument,
+  getDocuments,
+  createTimeWindow,
+  editTimeWindow,
+  deleteTimeWindow,
+  createBooking,
+  editBooking,
+  deleteBooking,
+};

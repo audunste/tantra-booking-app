@@ -6,9 +6,11 @@ import { getDateFnsLocale } from '../util/getDateFnsLocale';
 import RowWithLabelAndButton from './RowWithLabelAndButton';
 import { FiPlus, FiEdit } from 'react-icons/fi'; // Importing icons from react-icons
 import MiniTimeWindowCreator from './MiniTimeWindowCreator';
+import BookingCreator from './booking/BookingCreator';
 import { useState } from 'react';
-import { createTimeWindow, editTimeWindow, deleteTimeWindow } from '../model/firestoreService';
+import { createTimeWindow, editTimeWindow, deleteTimeWindow, editBooking, createBooking, deleteBooking } from '../model/firestoreService';
 import { timeRangeFromWindow } from '../util/timeWindowUtil';
+import { labelFromBooking } from '../util/bookingUtil';
 
 const HeaderWrapper = styled.div`
   display: flex;
@@ -65,30 +67,43 @@ const DayDetailsHeader = ({ title, onBack }) => {
 };
 
 const DayDetails = ({ date, onBack, windows, bookings }) => {
-  const [isMakingNew, setMakingNew] = useState(false);
+  const [isMakingNewWindow, setMakingNewWindow] = useState(false);
   const [windowBeingEdited, setWindowBeingEdited] = useState(null);
+  const [isMakingNewBooking, setMakingNewBooking] = useState(false);
+  const [bookingBeingEdited, setBookingBeingEdited] = useState(null);
 
   const { t, i18n } = useTranslation();
   const fnsLocale = getDateFnsLocale(i18n.language);
 
   const handleNewAvailability = () => {
-    setMakingNew(true);
+    setMakingNewWindow(true);
   };
 
-  const startEdit = (window) => {
+  const startEditWindow = (window) => {
     setWindowBeingEdited(window);
   }
+
+  const handleNewBooking = () => {
+    setMakingNewBooking(true);
+  };
+
+  const startEditBooking = (booking) => {
+    setBookingBeingEdited(booking);
+  }
+
+  const hasWindows = windows && windows.length > 0;
+  const hasBookings = bookings && bookings.length > 0;
 
   return (
     <DayDetailsWrapper>
       <DayDetailsHeader onBack={onBack} title={format(date, 'PPP', { locale: fnsLocale })} />
       <RowContainer>
         <RowWithLabelAndButton
-          label={windows.length > 0 ? t('Available') : t('No availability')}
-          buttonContent={(isMakingNew || windowBeingEdited) ? null : <FiPlus size={18} style={{ verticalAlign: 'middle' }} />}
+          label={hasWindows ? t('available.msg') : t('no-availability.msg')}
+          buttonContent={(isMakingNewWindow || windowBeingEdited) ? null : <FiPlus size={18} style={{ verticalAlign: 'middle' }} />}
           onButtonClick={handleNewAvailability}
         />
-        {windows.map((window, index) => (
+        {hasWindows && windows.map((window, index) => (
           (windowBeingEdited && (window.id === windowBeingEdited.id)) ? (
             <MiniTimeWindowCreator
               key={index}
@@ -108,17 +123,63 @@ const DayDetails = ({ date, onBack, windows, bookings }) => {
               key={index}
               label={timeRangeFromWindow(window)}
               indentation="8px"
-              buttonContent={isMakingNew ? null : <FiEdit size={18} style={{ verticalAlign: 'middle' }} />}
-              onButtonClick={() => startEdit(window)}
+              buttonContent={isMakingNewWindow ? null : <FiEdit size={18} style={{ verticalAlign: 'middle' }} />}
+              onButtonClick={() => startEditWindow(window)}
               hoverButton
               borderlessButton
             />
           )
         ))}
-        {isMakingNew && <MiniTimeWindowCreator date={date} onCreate={({ startTime, endTime }) => {
-          setMakingNew(false)
+        {isMakingNewWindow && <MiniTimeWindowCreator date={date} onCreate={({ startTime, endTime }) => {
+          setMakingNewWindow(false)
           createTimeWindow(startTime, endTime)
-        }} onCancel={() => setMakingNew(false)} />}
+        }} onCancel={() => setMakingNewWindow(false)} />}
+        <RowWithLabelAndButton
+          label={hasBookings ? t('bookings.msg') : t('no-bookings.msg')}
+          buttonContent={(isMakingNewBooking || bookingBeingEdited) ? null : <FiPlus size={18} style={{ verticalAlign: 'middle' }} />}
+          onButtonClick={handleNewBooking}
+        />
+        {hasBookings && bookings.map((booking, index) => {
+          const publicBooking = booking.publicBooking;
+          return (
+            (bookingBeingEdited && (publicBooking.id === bookingBeingEdited.publicBooking.id)) ? (
+              <BookingCreator
+                key={index}
+                windows={windows}
+                bookings={bookings}
+                editing={booking}
+                onCreate={({ startTime, endTime }) => {
+                  setBookingBeingEdited(null);
+                  editBooking(booking, startTime, endTime);
+                }}
+                onCancel={() => setBookingBeingEdited(null)}
+                onDelete={(w) => {
+                  setBookingBeingEdited(null);
+                  deleteBooking(booking);
+                }}
+              />
+            ) : (
+              <RowWithLabelAndButton
+                key={index}
+                label={labelFromBooking(booking)}
+                indentation="8px"
+                buttonContent={isMakingNewBooking ? null : <FiEdit size={18} style={{ verticalAlign: 'middle' }} />}
+                onButtonClick={() => startEditBooking(booking)}
+                hoverButton
+                borderlessButton
+              />
+            )
+          )
+        })}
+        {isMakingNewBooking && <BookingCreator
+          date={date} 
+          windows={windows}
+          bookings={bookings}
+          onCreate={({ startTime, endTime }) => {
+            setMakingNewBooking(false)
+            createBooking(startTime, endTime)
+          }}
+          onCancel={() => setMakingNewBooking(false)} />}
       </RowContainer>
     </DayDetailsWrapper>
   );

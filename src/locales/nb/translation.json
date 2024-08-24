@@ -64,5 +64,10 @@
   "changes-to-terms.msg": "Audun Steinholm forbeholder seg retten til å endre disse vilkårene når som helst. Eventuelle endringer vil bli lagt ut på denne siden, og det er ditt ansvar å gjennomgå disse vilkårene periodisk. Din fortsatte bruk av nettstedet etter eventuelle endringer innebærer din aksept av de nye vilkårene.",
   "7-governing-law.title": "7. Lovvalg",
   "governing-law.msg": "Disse vilkårene og betingelsene er underlagt og skal tolkes i samsvar med norsk lov. Eventuelle tvister knyttet til disse vilkårene vil være underlagt den eksklusive jurisdiksjonen til norske domstoler. Dette gjelder selv når massører og kunder befinner seg i forskjellige land.",
-  "terms-questions.prefix": "Hvis du har spørsmål om disse vilkårene, vennligst kontakt Audun Steinholm på"
+  "terms-questions.prefix": "Hvis du har spørsmål om disse vilkårene, vennligst kontakt Audun Steinholm på",
+  "confirm-delete.msg": "Slett {{timeWindow}}?",
+  "available.msg": "Tilgjengelig",
+  "no-availability.msg": "Ingen tilgjengelighet",
+  "bookings.msg": "Bookinger",
+  "no-bookings.msg": "Ingen bookinger"
 }

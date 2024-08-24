@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import TimeWindowCreator from './TimeWindowCreator';
 import { db } from '../firebaseConfig'; // Assumes you're using Firebase
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDoc, doc } from 'firebase/firestore';
 import { auth } from '../firebaseConfig';
 import { createTimeWindow } from '../model/firestoreService';
 import TimeWindowsCalendarContainer from './TimeWindowsCalendarContainer';
@@ -49,34 +49,77 @@ const groupByYearMonth = (windows) => {
 };
 
 const TimeWindows = () => {
-  const [groupedTimeWindows, setGroupedTimeWindows] = useState({});
+  // Key: yearMonth ex "2024-12"
+  // Value: object ex {
+  //   timeWindows: [
+  //     { startTime, endTime, ... }, ...
+  //   ],
+  //   bookings: [ {
+  //     publicBooking: { },
+  //     privateBooking: { }
+  //   } ]
+  // }
+  const [groupedData, setGroupedData] = useState({});
   const user = auth.currentUser;
+
+  const groupByYearMonth = (data, dateField) => {
+    return data.reduce((groups, item) => {
+      const date = new Date(item[dateField]);
+      const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      if (!groups[yearMonth]) {
+        groups[yearMonth] = { timeWindows: [], bookingsAndDetails: [] };
+      }
+      return groups;
+    }, {});
+  };
+
+  const mergeData = (groupedTimeWindows, groupedBookings) => {
+    const merged = { ...groupedTimeWindows };
+
+    Object.keys(groupedBookings).forEach((yearMonth) => {
+      if (!merged[yearMonth]) {
+        merged[yearMonth] = { timeWindows: [], bookings: [] };
+      }
+      merged[yearMonth].bookings = groupedBookings[yearMonth];
+    });
+
+    return merged;
+  };
 
   useEffect(() => {
     if (user) {
-      // Real-time listener for time windows
-      const q = query(collection(db, 'timeWindows'), where('masseurId', '==', user.uid));
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const timeWindowsQuery = query(collection(db, 'timeWindows'), where('masseurId', '==', user.uid));
+      const unsubscribeTimeWindows = onSnapshot(timeWindowsQuery, (querySnapshot) => {
         const windows = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-        // Group and sort the windows by year-month
-        const grouped = groupByYearMonth(windows);
-        setGroupedTimeWindows(grouped);
-
-        console.log('Grouped time windows:', grouped);
-      }, (error) => {
-        console.error('Error fetching time windows:', error);
+        const groupedTimeWindows = groupByYearMonth(windows, 'startTime');
+        setGroupedData((prevData) => mergeData(groupedTimeWindows, prevData.bookingsAndDetails));
       });
 
-      // Clean up the listener on unmount
-      return () => unsubscribe();
+      const publicBookingsQuery = query(collection(db, 'publicBookings'), where('masseurId', '==', user.uid));
+      const unsubscribeBookings = onSnapshot(publicBookingsQuery, async (querySnapshot) => {
+        const publicBookings = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const bookingsPromises = publicBookings.map(async (publicBooking) => {
+          const privateBookingDoc = await getDoc(doc(db, 'privateBookings', publicBooking.privateBookingId));
+          const privateBooking = privateBookingDoc.exists() ? privateBookingDoc.data() : null;
+          return { publicBooking, privateBooking };
+        });
+
+        const bookings = await Promise.all(bookingsPromises);
+        const groupedBookings = groupByYearMonth(bookings, 'publicBooking.startTime');
+        setGroupedData((prevData) => mergeData(prevData.timeWindows, groupedBookings));
+      });
+
+      return () => {
+        unsubscribeTimeWindows();
+        unsubscribeBookings();
+      };
     }
   }, [user]);
 
   return (
     <TimeWindowsWrapper>
       <TimeWindowsCalendarContainerWrapper>
-        <TimeWindowsCalendarContainer groupedTimeWindows={groupedTimeWindows} />
+        <TimeWindowsCalendarContainer groupedData={groupedData} />
       </TimeWindowsCalendarContainerWrapper>
       <TimeWindowCreatorWrapper>
         <TimeWindowCreator onCreate={({ startTime, endTime }) => {
