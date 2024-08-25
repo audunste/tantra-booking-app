@@ -6,7 +6,7 @@ import TimeWindowCreator from './TimeWindowCreator';
 import { db } from '../firebaseConfig'; // Assumes you're using Firebase
 import { collection, query, where, onSnapshot, getDoc, doc } from 'firebase/firestore';
 import { auth } from '../firebaseConfig';
-import { createTimeWindow } from '../model/firestoreService';
+import { createTimeWindow, PublicBooking } from '../model/firestoreService';
 import TimeWindowsCalendarContainer from './TimeWindowsCalendarContainer';
 
 
@@ -42,7 +42,7 @@ const groupByYearMonth = (windows) => {
 
   // Sort each month's windows by startTime
   for (const key in grouped) {
-    grouped[key].sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    grouped[key].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
   }
 
   return grouped;
@@ -106,7 +106,10 @@ const TimeWindows = () => {
 
       const publicBookingsQuery = query(collection(db, 'publicBookings'), where('masseurId', '==', user.uid));
       const unsubscribeBookings = onSnapshot(publicBookingsQuery, async (querySnapshot) => {
-        const publicBookings = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const publicBookings: PublicBooking[] = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as PublicBooking[];
         const bookingsPromises = publicBookings.map(async (publicBooking) => {
           const privateBookingDoc = await getDoc(doc(db, 'privateBookings', publicBooking.privateBookingId));
           const privateBooking = privateBookingDoc.exists() ? privateBookingDoc.data() : null;

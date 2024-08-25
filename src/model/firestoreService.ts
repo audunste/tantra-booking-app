@@ -22,7 +22,14 @@ const getDocuments = async (collectionName) => {
   return documents;
 };
 
-const createTimeWindow = async (startTime, endTime, doMerge = true) => {
+interface TimeWindow {
+  id: string;
+  masseurId: string;
+  startTime: Date; 
+  endTime: Date;
+};
+
+const createTimeWindow = async (startTime: Date, endTime: Date, doMerge = true) => {
   try {
     if (!auth.currentUser) {
       console.error("Error creating time window: No auth.currentUser");
@@ -43,7 +50,7 @@ const createTimeWindow = async (startTime, endTime, doMerge = true) => {
   }
 };
 
-const editTimeWindow = async (window, startTime, endTime, doMerge = true) => {
+const editTimeWindow = async (window: TimeWindow, startTime: Date, endTime: Date, doMerge = true) => {
   try {
     if (!auth.currentUser) {
       console.error("Error editing time window: No auth.currentUser");
@@ -63,15 +70,15 @@ const editTimeWindow = async (window, startTime, endTime, doMerge = true) => {
   }
 };
 
-const deleteTimeWindow = async (window) => {
+const deleteTimeWindow = async (id: string) => {
   try {
     if (!auth.currentUser) {
       console.error("Error deleting time window: No auth.currentUser");
       return
     }
-    await deleteDoc(doc(db, 'timeWindows', window.id));
+    await deleteDoc(doc(db, 'timeWindows', id));
 
-    console.log("Time window deleted with ID: ", window.id);
+    console.log("Time window deleted with ID: ", id);
   } catch (error) {
     console.error("Error deleting time window: ", error);
   }
@@ -85,9 +92,9 @@ const mergeTimeWindows = async () => {
     // Filter time windows belonging to the current masseur and sort them by startTime
     const masseurWindows = timeWindows
       .filter((window) => window.masseurId === masseurId)
-      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
-    const windowsToUpdate = new Set();
+    const windowsToUpdate = new Set<TimeWindow>();
     const windowsToDelete = [];
     let currentWindow = null;
 
@@ -137,29 +144,51 @@ const mergeTimeWindows = async () => {
   }
 };
 
+interface PublicBooking {
+  id: string;
+  privateBookingId: string | null;
+  clientId: string | null;
+  masseurId: string;
+  startTime: Date; 
+  endTime: Date;
+};
+
+interface PrivateBooking {
+  id: string;
+  publicBookingId: string;
+  clientId: string | null;
+  masseurId: string;
+  massageType: string;
+  addons: Array<string>;
+  name: string;
+  email: string;
+  phone: string;
+  comment: string;
+}
+
 const createBooking = async (masseurId, startTime, endTime, massageType, addons, name, email, phone = '', comment = '', clientId = null) => {
   try {
-    const isGuest = !clientId;
 
     // Create a booking in the publicBookings collection
     const publicBookingRef = await addDoc(collection(db, 'publicBookings'), {
+      privateBookingId: null,  // Placeholder for the ID of the privateBookings document
+      clientId,
+      masseurId,
       startTime,
       endTime,
-      masseurId,
-      isGuest,
-      privateBookingId: null,  // Placeholder for the ID of the privateBookings document
     });
 
     // Create the private booking details
     const privateBookingRef = await addDoc(collection(db, 'privateBookings'), {
       publicBookingId: publicBookingRef.id,
+      clientId,
+      masseurId,
       massageType,
       addons,
       name,
       email,
       phone,
       comment,
-      clientId,
     });
 
     // Update the booking with the privateBookingId
@@ -212,10 +241,13 @@ const deleteBooking = async (publicBookingId) => {
 export {
   addDocument,
   getDocuments,
+  TimeWindow,
   createTimeWindow,
   editTimeWindow,
   deleteTimeWindow,
   createBooking,
   editBooking,
   deleteBooking,
+  PublicBooking,
+  PrivateBooking,
 };

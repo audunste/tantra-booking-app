@@ -44,13 +44,13 @@ const IconButton = styled.button`
 `;
 
 const BookingCreator = ({ 
-  date,
+  date = undefined,
   windows,
   bookings,
-  editing,
+  editing = undefined,
   onCreate,
   onCancel,
-  onDelete,
+  onDelete = undefined,
 }) => {
   const { t } = useTranslation();
   

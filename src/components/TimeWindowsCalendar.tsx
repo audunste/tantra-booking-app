@@ -40,7 +40,13 @@ const DaysOfWeek = styled.div`
   background-color: ${(props) => props.theme.colors.tertiaryBackground};
 `;
 
-const Day = styled.div`
+interface DayProps {
+  $isCurrentDay: boolean;
+  $hasWindows: boolean;
+  $isSameMonth: boolean;
+}
+
+const Day = styled.div<DayProps>`
   display: flex;
   align-items: center;
   justify-content: center;

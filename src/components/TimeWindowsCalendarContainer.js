@@ -42,7 +42,6 @@ const TimeWindowsCalendarContainer = ({ groupedData }) => {
           yearMonth={yearMonth}
           windows={data.timeWindows}
           bookings={data.bookings}
-          index={index}
         />
       )
     );

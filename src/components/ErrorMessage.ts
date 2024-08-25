@@ -2,8 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 
 
-// Styled-component with conditional height
-const ErrorMessage = styled.div`
+interface ErrorMessageProps {
+  height?: number;
+  $show: boolean;
+}
+
+const ErrorMessage = styled.div<ErrorMessageProps>`
   height: ${(props) => (props.height ? `${props.height}px` : 'auto')}; 
   color: ${(props) => props.theme.colors.error};
   font-size: 0.8em;

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "outDir": "./build",
+    "strict": false,           // Disable strict type checking
+    "noImplicitAny": false,    // Allow implicit 'any' types
+    "checkJs": true,           // Don't check JavaScript files
+    "allowJs": true,           // Allow JavaScript files in the project
+    "target": "es6",           // Set the target ECMAScript version
+    "module": "esnext",        // Set the module system (e.g., ESNext)
+    "jsx": "react",            // If using React, enable JSX support
+    "moduleResolution": "node", // Node.js module resolution
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+  },
+  "include": [
+    "src/**/*"                 // Include files in the src folder
+  ],
+  "exclude": [
+    "node_modules",
+    "build"
+  ],
+}
+

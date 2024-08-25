@@ -67,7 +67,7 @@ const IconButton = styled.button`
   }
 `;
 
-const MiniTimeWindowCreator = ({ date = null, window = null, onCreate, onCancel, onDelete }) => {
+const MiniTimeWindowCreator = ({ date = null, window = null, onCreate, onCancel, onDelete = undefined }) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [startTime, setStartTime] = useState('10:00');
   const [endTime, setEndTime] = useState('14:00');
@@ -156,7 +156,7 @@ const MiniTimeWindowCreator = ({ date = null, window = null, onCreate, onCancel,
     const endDate = new Date();
     endDate.setHours(endHours, endMinutes, 0, 0);
 
-    const differenceInMinutes = (endDate - startDate) / (1000 * 60);
+    const differenceInMinutes = (endDate.getTime() - startDate.getTime()) / (1000 * 60);
 
     if (differenceInMinutes < 90) {
       return t('timeWindowMinimum_msg');
