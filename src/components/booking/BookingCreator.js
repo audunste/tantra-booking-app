@@ -1,9 +1,12 @@
-// src/components/booking/BookingCreator.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FiX, FiCheck } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import ErrorMessage from '../ErrorMessage';
+import MassageTypeStage from './MassageTypeStage';
+import AddonsStage from './AddonsStage';
+import TimeSlotStage from './TimeSlotStage';
+import BookingDetailsStage from './BookingDetailsStage';
 
 const BookingCreatorWrapper = styled.div`
   width: 100%;
@@ -40,21 +43,6 @@ const IconButton = styled.button`
   }
 `;
 
-/*
-                date={date}
-                windows={windows}
-                bookings={bookings}
-                editing={booking}
-                onCreate={({ startTime, endTime }) => {
-                  setBookingBeingEdited(null);
-                  editBooking(booking, startTime, endTime);
-                }}
-                onCancel={() => setBookingBeingEdited(null)}
-                onDelete={(w) => {
-                  setBookingBeingEdited(null);
-                  deleteBooking(booking);
-                }}
-*/
 const BookingCreator = ({ 
   date,
   windows,
@@ -76,24 +64,44 @@ const BookingCreator = ({
   const [comment, setComment] = useState('');  // Optional comment
   const [combinedError, setCombinedError] = useState('');
 
+  // Initialize state from the editing parameter if provided
+  useEffect(() => {
+    if (editing) {
+      setMassageType(editing.privateBooking.massageType || null);
+      setAddons(editing.privateBooking.addons || []);
+      setStartTime(editing.publicBooking.startTime || '');
+      setName(editing.privateBooking.name || '');
+      setEmail(editing.privateBooking.email || '');
+      setPhone(editing.privateBooking.phone || '');
+      setComment(editing.privateBooking.comment || '');
+    }
+  }, [editing]);
+
+  const calculateEndTime = (startTime, duration) => {
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const startDateTime = new Date(date);
+    startDateTime.setHours(startHours, startMinutes, 0, 0);
+    const endDateTime = new Date(startDateTime.getTime() + duration * 60 * 1000);
+    const hours = String(endDateTime.getHours()).padStart(2, '0');
+    const minutes = String(endDateTime.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
+
   const handleNext = () => {
-    // Logic to move to the next stage
     setStage(stage + 1);
   };
 
   const handlePrevious = () => {
-    // Logic to move to the previous stage
     setStage(stage - 1);
   };
 
   const handleSubmit = () => {
-    // Final submission logic
     if (!name || !email || !startTime) {
       setCombinedError(t('missingFields_msg'));
       return;
     }
 
-
+    const endTime = calculateEndTime(startTime, 90);  // Default to 90 minutes
 
     onCreate({
       startTime,
@@ -141,6 +149,7 @@ const BookingCreator = ({
       {stage === 2 && (
         <TimeSlotStage
           startTime={startTime}
+          windows={windows}
           onSelect={setStartTime}
           onPrevious={handlePrevious}
           onNext={handleNext}

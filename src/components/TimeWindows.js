@@ -66,23 +66,32 @@ const TimeWindows = () => {
     return data.reduce((groups, item) => {
       const date = new Date(item[dateField]);
       const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  
       if (!groups[yearMonth]) {
-        groups[yearMonth] = { timeWindows: [], bookingsAndDetails: [] };
+        groups[yearMonth] = { timeWindows: [], bookings: [] };
       }
+  
+      // Add the item to the correct group
+      if (item.publicBooking) {
+        groups[yearMonth].bookings.push(item);
+      } else {
+        groups[yearMonth].timeWindows.push(item);
+      }
+  
       return groups;
     }, {});
   };
-
   const mergeData = (groupedTimeWindows, groupedBookings) => {
     const merged = { ...groupedTimeWindows };
 
-    Object.keys(groupedBookings).forEach((yearMonth) => {
-      if (!merged[yearMonth]) {
-        merged[yearMonth] = { timeWindows: [], bookings: [] };
-      }
-      merged[yearMonth].bookings = groupedBookings[yearMonth];
-    });
-
+    if (groupedBookings) {
+      Object.keys(groupedBookings).forEach((yearMonth) => {
+        if (!merged[yearMonth]) {
+          merged[yearMonth] = { timeWindows: [], bookings: [] };
+        }
+        merged[yearMonth].bookings = groupedBookings[yearMonth];
+      });
+    }
     return merged;
   };
 
@@ -92,7 +101,7 @@ const TimeWindows = () => {
       const unsubscribeTimeWindows = onSnapshot(timeWindowsQuery, (querySnapshot) => {
         const windows = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const groupedTimeWindows = groupByYearMonth(windows, 'startTime');
-        setGroupedData((prevData) => mergeData(groupedTimeWindows, prevData.bookingsAndDetails));
+        setGroupedData((prevData) => mergeData(groupedTimeWindows, prevData));
       });
 
       const publicBookingsQuery = query(collection(db, 'publicBookings'), where('masseurId', '==', user.uid));
@@ -106,7 +115,7 @@ const TimeWindows = () => {
 
         const bookings = await Promise.all(bookingsPromises);
         const groupedBookings = groupByYearMonth(bookings, 'publicBooking.startTime');
-        setGroupedData((prevData) => mergeData(prevData.timeWindows, groupedBookings));
+        setGroupedData((prevData) => mergeData(prevData, groupedBookings));
       });
 
       return () => {
