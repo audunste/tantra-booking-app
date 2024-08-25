@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { createTimeWindow, editTimeWindow, deleteTimeWindow, editBooking, createBooking, deleteBooking } from '../model/firestoreService';
 import { timeRangeFromWindow } from '../util/timeWindowUtil';
 import { labelFromBooking } from '../util/bookingUtil';
+import { Booking, TimeWindow } from '../model/bookingTypes';
 
 const HeaderWrapper = styled.div`
   display: flex;
@@ -66,7 +67,14 @@ const DayDetailsHeader = ({ title, onBack }) => {
   );
 };
 
-const DayDetails = ({ date, onBack, windows, bookings }) => {
+interface DayDetailsProps {
+  date: Date;
+  onBack: () => void;
+  windows: TimeWindow[];
+  bookings: Booking[];
+}
+
+const DayDetails: React.FC<DayDetailsProps> = ({ date, onBack, windows, bookings }) => {
   const [isMakingNewWindow, setMakingNewWindow] = useState(false);
   const [windowBeingEdited, setWindowBeingEdited] = useState(null);
   const [isMakingNewBooking, setMakingNewBooking] = useState(false);
@@ -177,7 +185,7 @@ const DayDetails = ({ date, onBack, windows, bookings }) => {
           bookings={bookings}
           onCreate={({ startTime, endTime }) => {
             setMakingNewBooking(false)
-            createBooking(startTime, endTime)
+            //createBooking(startTime, endTime)
           }}
           onCancel={() => setMakingNewBooking(false)} />}
       </RowContainer>

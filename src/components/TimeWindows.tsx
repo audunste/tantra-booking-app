@@ -8,7 +8,7 @@ import { collection, query, where, onSnapshot, getDoc, doc, Timestamp } from 'fi
 import { auth } from '../firebaseConfig';
 import { createTimeWindow } from '../model/firestoreService';
 import TimeWindowsCalendarContainer from './TimeWindowsCalendarContainer';
-import { Booking, GroupedBookingData, PublicBooking, TimeWindow } from '../model/bookingTypes';
+import { Booking, GroupedBookingData, PublicBooking, TimeWindow, TimeWindowsAndBookings } from '../model/bookingTypes';
 
 
 const TimeWindowsWrapper = styled.div`
@@ -33,24 +33,32 @@ const TimeWindows = () => {
   const user = auth.currentUser;
 
   const groupByYearMonth = (data: any[], dateField: string): GroupedBookingData => {
-    return data.reduce((groups, item) => {
+    // First, group the items by yearMonth
+    const groupedData = data.reduce((groups, item) => {
       const date = (item[dateField] as Timestamp).toDate();
       const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       if (!groups[yearMonth]) {
         groups[yearMonth] = { timeWindows: [], bookings: [] };
       }
-
+  
       // Determine if the item is a TimeWindow or a Booking and add it to the correct array
       if ('publicBooking' in item) {
         groups[yearMonth].bookings.push(item as Booking);
       } else {
         groups[yearMonth].timeWindows.push(item as TimeWindow);
       }
-
+  
       return groups;
     }, {} as GroupedBookingData);
+  
+    // Sort each array after grouping
+    Object.values(groupedData).forEach((group: TimeWindowsAndBookings) => {
+      group.bookings.sort((a, b) => a.publicBooking.startTime.toMillis() - b.publicBooking.startTime.toMillis());
+      group.timeWindows.sort((a, b) => a.startTime.toMillis() - b.startTime.toMillis());
+    });
+  
+    return groupedData;
   };
-
   useEffect(() => {
     if (auth.currentUser) {
       const timeWindowsQuery = query(collection(db, 'timeWindows'), where('masseurId', '==', auth.currentUser.uid));
