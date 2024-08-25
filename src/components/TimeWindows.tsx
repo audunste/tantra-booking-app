@@ -4,10 +4,11 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import TimeWindowCreator from './TimeWindowCreator';
 import { db } from '../firebaseConfig'; // Assumes you're using Firebase
-import { collection, query, where, onSnapshot, getDoc, doc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDoc, doc, Timestamp } from 'firebase/firestore';
 import { auth } from '../firebaseConfig';
-import { createTimeWindow, PublicBooking } from '../model/firestoreService';
+import { createTimeWindow } from '../model/firestoreService';
 import TimeWindowsCalendarContainer from './TimeWindowsCalendarContainer';
+import { Booking, GroupedBookingData, PublicBooking, TimeWindow } from '../model/bookingTypes';
 
 
 const TimeWindowsWrapper = styled.div`
@@ -26,99 +27,51 @@ const TimeWindowCreatorWrapper = styled.div`
   width: 100%;
 `;
 
-const groupByYearMonth = (windows) => {
-  const grouped = {};
-
-  windows.forEach((window) => {
-    const startDate = new Date(window.startTime);
-    const yearMonth = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}`;
-
-    if (!grouped[yearMonth]) {
-      grouped[yearMonth] = [];
-    }
-
-    grouped[yearMonth].push(window);
-  });
-
-  // Sort each month's windows by startTime
-  for (const key in grouped) {
-    grouped[key].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-  }
-
-  return grouped;
-};
 
 const TimeWindows = () => {
-  // Key: yearMonth ex "2024-12"
-  // Value: object ex {
-  //   timeWindows: [
-  //     { startTime, endTime, ... }, ...
-  //   ],
-  //   bookings: [ {
-  //     publicBooking: { },
-  //     privateBooking: { }
-  //   } ]
-  // }
-  const [groupedData, setGroupedData] = useState({});
+  const [groupedData, setGroupedData] = useState<GroupedBookingData>({});
   const user = auth.currentUser;
 
-  const groupByYearMonth = (data, dateField) => {
+  const groupByYearMonth = (data: any[], dateField: string): GroupedBookingData => {
     return data.reduce((groups, item) => {
-      const date = new Date(item[dateField]);
+      const date = (item[dateField] as Timestamp).toDate();
       const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-  
       if (!groups[yearMonth]) {
         groups[yearMonth] = { timeWindows: [], bookings: [] };
       }
-  
-      // Add the item to the correct group
-      if (item.publicBooking) {
-        groups[yearMonth].bookings.push(item);
-      } else {
-        groups[yearMonth].timeWindows.push(item);
-      }
-  
-      return groups;
-    }, {});
-  };
-  const mergeData = (groupedTimeWindows, groupedBookings) => {
-    const merged = { ...groupedTimeWindows };
 
-    if (groupedBookings) {
-      Object.keys(groupedBookings).forEach((yearMonth) => {
-        if (!merged[yearMonth]) {
-          merged[yearMonth] = { timeWindows: [], bookings: [] };
-        }
-        merged[yearMonth].bookings = groupedBookings[yearMonth];
-      });
-    }
-    return merged;
+      // Determine if the item is a TimeWindow or a Booking and add it to the correct array
+      if ('publicBooking' in item) {
+        groups[yearMonth].bookings.push(item as Booking);
+      } else {
+        groups[yearMonth].timeWindows.push(item as TimeWindow);
+      }
+
+      return groups;
+    }, {} as GroupedBookingData);
   };
 
   useEffect(() => {
-    if (user) {
-      const timeWindowsQuery = query(collection(db, 'timeWindows'), where('masseurId', '==', user.uid));
+    if (auth.currentUser) {
+      const timeWindowsQuery = query(collection(db, 'timeWindows'), where('masseurId', '==', auth.currentUser.uid));
       const unsubscribeTimeWindows = onSnapshot(timeWindowsQuery, (querySnapshot) => {
         const windows = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const groupedTimeWindows = groupByYearMonth(windows, 'startTime');
-        setGroupedData((prevData) => mergeData(groupedTimeWindows, prevData));
+        setGroupedData((prevData) => ({ ...prevData, ...groupedTimeWindows }));
       });
 
-      const publicBookingsQuery = query(collection(db, 'publicBookings'), where('masseurId', '==', user.uid));
+      const publicBookingsQuery = query(collection(db, 'publicBookings'), where('masseurId', '==', auth.currentUser.uid));
       const unsubscribeBookings = onSnapshot(publicBookingsQuery, async (querySnapshot) => {
-        const publicBookings: PublicBooking[] = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as PublicBooking[];
+        const publicBookings = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as PublicBooking[];
         const bookingsPromises = publicBookings.map(async (publicBooking) => {
           const privateBookingDoc = await getDoc(doc(db, 'privateBookings', publicBooking.privateBookingId));
-          const privateBooking = privateBookingDoc.exists() ? privateBookingDoc.data() : null;
-          return { publicBooking, privateBooking };
+          const privateBooking = privateBookingDoc.exists() ? { id: privateBookingDoc.id, ...privateBookingDoc.data() } : null;
+          return { publicBooking, privateBooking } as Booking;
         });
 
         const bookings = await Promise.all(bookingsPromises);
         const groupedBookings = groupByYearMonth(bookings, 'publicBooking.startTime');
-        setGroupedData((prevData) => mergeData(prevData, groupedBookings));
+        setGroupedData((prevData) => ({ ...prevData, ...groupedBookings }));
       });
 
       return () => {
@@ -126,7 +79,7 @@ const TimeWindows = () => {
         unsubscribeBookings();
       };
     }
-  }, [user]);
+  }, [auth.currentUser]);
 
   return (
     <TimeWindowsWrapper>

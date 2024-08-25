@@ -14,6 +14,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { getDateFnsLocale } from '../util/getDateFnsLocale';
 import DayDetails from './DayDetails';
+import { Booking, TimeWindow } from '../model/bookingTypes';
 
 const CalendarWrapper = styled.div`
   width: 100%;
@@ -109,12 +110,18 @@ const BackButton = styled.button`
   font-size: 1em;
 `;
 
-const TimeWindowsCalendar = ({ yearMonth, windows, bookings }) => {
+interface TimeWindowsCalendarProps {
+  yearMonth: string;
+  windows: TimeWindow[];
+  bookings: Booking[];
+}
+
+const TimeWindowsCalendar: React.FC<TimeWindowsCalendarProps> = ({ yearMonth, windows, bookings }) => {
   const [selectedDay, setSelectedDay] = useState(null);
 
   const { t, i18n } = useTranslation();
   const [year, month] = yearMonth.split('-');
-  const date = new Date(year, month - 1);
+  const date = new Date(parseInt(year), parseInt(month) - 1);
 
   const startDay = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
   const endDay = endOfMonth(date);
@@ -145,11 +152,11 @@ const TimeWindowsCalendar = ({ yearMonth, windows, bookings }) => {
   };
 
   const selectedDayWindows = selectedDay
-    ? windows.filter((window) => isSameDay(new Date(window.startTime), selectedDay))
+    ? windows.filter((window: TimeWindow) => isSameDay(window.startTime.toDate(), selectedDay))
     : undefined;
 
   const selectedDaybookings = selectedDay
-    ? bookings.filter((b) => isSameDay(new Date(b.booking.startTime), selectedDay))
+    ? bookings.filter((b: Booking) => isSameDay(b.publicBooking.startTime.toDate(), selectedDay))
     : undefined
 
   return (
@@ -177,12 +184,12 @@ const TimeWindowsCalendar = ({ yearMonth, windows, bookings }) => {
                   <Day
                     key={index}
                     $isSameMonth={isSameMonth(date, day)}
-                    $hasWindows={windows.some((window) => isSameDay(new Date(window.startTime), day))}
+                    $hasWindows={windows.some((window) => isSameDay(window.startTime.toDate(), day))}
                     $isCurrentDay={isToday(day)}
                     onClick={() => handleDayClick(day)}
                   >
                     {format(day, 'd')}
-                    {windows.some((window) => isSameDay(new Date(window.startTime), day)) ? ' ★' : ''}
+                    {windows.some((window) => isSameDay(window.startTime.toDate(), day)) ? ' ★' : ''}
                   </Day>
                 ))}
               </React.Fragment>

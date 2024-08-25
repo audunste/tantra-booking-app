@@ -1,6 +1,7 @@
 // src/model/firestoreService.js
 import { auth, db } from '../firebaseConfig';
-import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc, setDoc, Timestamp } from 'firebase/firestore';
+import { TimeWindow } from './bookingTypes';
 
 // Add a new document with a generated ID
 const addDocument = async (collectionName, data) => {
@@ -22,24 +23,18 @@ const getDocuments = async (collectionName) => {
   return documents;
 };
 
-interface TimeWindow {
-  id: string;
-  masseurId: string;
-  startTime: Date; 
-  endTime: Date;
-};
-
 const createTimeWindow = async (startTime: Date, endTime: Date, doMerge = true) => {
   try {
     if (!auth.currentUser) {
       console.error("Error creating time window: No auth.currentUser");
       return
     }
+
     const masseurId = auth.currentUser.uid
     const docRef = await addDoc(collection(db, 'timeWindows'), {
-      startTime,
-      endTime,
-      masseurId
+      masseurId,
+      startTime: Timestamp.fromDate(startTime),
+      endTime: Timestamp.fromDate(endTime),
     });
     console.log("Time window created with ID: ", docRef.id);
     if (doMerge) {
@@ -57,8 +52,8 @@ const editTimeWindow = async (window: TimeWindow, startTime: Date, endTime: Date
       return
     }
     await updateDoc(doc(db, 'timeWindows', window.id), {
-      startTime,
-      endTime,
+      startTime: Timestamp.fromDate(startTime),
+      endTime: Timestamp.fromDate(endTime),
     });
 
     console.log("Time window edited with ID: ", window.id);
@@ -87,28 +82,30 @@ const deleteTimeWindow = async (id: string) => {
 const mergeTimeWindows = async () => {
   try {
     const masseurId = auth.currentUser.uid;
-    const timeWindows = await getDocuments('timeWindows');
+    
+    // Cast the result of getDocuments as an array of TimeWindow
+    const timeWindows = await getDocuments('timeWindows') as TimeWindow[];
 
     // Filter time windows belonging to the current masseur and sort them by startTime
     const masseurWindows = timeWindows
       .filter((window) => window.masseurId === masseurId)
-      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+      .sort((a, b) => a.startTime.toMillis() - b.startTime.toMillis());
 
     const windowsToUpdate = new Set<TimeWindow>();
     const windowsToDelete = [];
-    let currentWindow = null;
+    let currentWindow: TimeWindow | null = null;
 
     masseurWindows.forEach((window) => {
       if (!currentWindow) {
         // Start with the first window
         currentWindow = window;
       } else {
-        const currentEnd = new Date(currentWindow.endTime);
-        const nextStart = new Date(window.startTime);
+        const currentEnd = currentWindow.endTime.toMillis();
+        const nextStart = window.startTime.toMillis();
 
         // If windows overlap or touch, merge them
         if (nextStart <= currentEnd) {
-          const nextEnd = new Date(window.endTime);
+          const nextEnd = window.endTime.toMillis();
           // Extend the current window's endTime if necessary
           if (nextEnd > currentEnd) {
             currentWindow.endTime = window.endTime;
@@ -125,7 +122,7 @@ const mergeTimeWindows = async () => {
 
     // Delete old windows that were merged
     for (const windowId of windowsToDelete) {
-      console.log("Attempting delete of time window: " + windowId)
+      console.log("Attempting delete of time window: " + windowId);
       await deleteDoc(doc(db, 'timeWindows', windowId));
     }
 
@@ -143,28 +140,6 @@ const mergeTimeWindows = async () => {
     console.error("Error merging time windows: ", error);
   }
 };
-
-interface PublicBooking {
-  id: string;
-  privateBookingId: string | null;
-  clientId: string | null;
-  masseurId: string;
-  startTime: Date; 
-  endTime: Date;
-};
-
-interface PrivateBooking {
-  id: string;
-  publicBookingId: string;
-  clientId: string | null;
-  masseurId: string;
-  massageType: string;
-  addons: Array<string>;
-  name: string;
-  email: string;
-  phone: string;
-  comment: string;
-}
 
 const createBooking = async (masseurId, startTime, endTime, massageType, addons, name, email, phone = '', comment = '', clientId = null) => {
   try {
@@ -241,13 +216,10 @@ const deleteBooking = async (publicBookingId) => {
 export {
   addDocument,
   getDocuments,
-  TimeWindow,
   createTimeWindow,
   editTimeWindow,
   deleteTimeWindow,
   createBooking,
   editBooking,
   deleteBooking,
-  PublicBooking,
-  PrivateBooking,
 };

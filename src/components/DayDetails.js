@@ -115,7 +115,7 @@ const DayDetails = ({ date, onBack, windows, bookings }) => {
               onCancel={() => setWindowBeingEdited(null)}
               onDelete={(w) => {
                 setWindowBeingEdited(null);
-                deleteTimeWindow(window);
+                deleteTimeWindow(window.id);
               }}
             />
           ) : (

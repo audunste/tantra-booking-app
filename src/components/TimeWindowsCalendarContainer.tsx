@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import TimeWindowsCalendar from './TimeWindowsCalendar';
 import { useTheme } from 'styled-components';
+import { GroupedBookingData } from '../model/bookingTypes';
 
 const minWidth = 320;
 const maxWidth = 502;
@@ -15,18 +16,11 @@ const Container = styled.div`
   width: 100%;
 `;
 
-const TimeWindowsCalendarContainer = ({ groupedData }) => {
-  // Key: yearMonth ex "2024-12"
-  // Value: object ex {
-  //   timeWindows: [
-  //     { startTime, endTime, ... }, ...
-  //   ],
-  //   bookings: [ {
-  //     publicBooking: { },
-  //     privateBooking: { }
-  //   } ]
-  // }
+interface TimeWindowsCalendarContainerProps {
+  groupedData: GroupedBookingData;
+}
 
+const TimeWindowsCalendarContainer: React.FC<TimeWindowsCalendarContainerProps> = ({ groupedData }) => {
   const [calendars, setCalendars] = useState([]);
   const [containerWidth, setContainerWidth] = useState(0);
   const theme = useTheme();

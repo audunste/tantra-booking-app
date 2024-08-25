@@ -6,6 +6,11 @@ import styled from 'styled-components';
 import SecondaryButton from './SecondaryButton';
 import { useTranslation } from 'react-i18next';
 import ErrorMessage from './ErrorMessage';
+import { CreateTimeWindowData } from '../model/bookingTypes';
+
+interface TimeWindowCreatorProps {
+  onCreate: (data: CreateTimeWindowData) => void;
+}
 
 const TimeWindowCreatorWrapper = styled.div`
   width: calc(100% + 20px);
@@ -44,7 +49,7 @@ const tomorrow = () => {
   return tomorrow.toISOString().split('T')[0];
 };
 
-const TimeWindowCreator = ({ onCreate }) => {
+const TimeWindowCreator: React.FC<TimeWindowCreatorProps> = ({ onCreate }) => {
   const [isExpanded, setExpanded] = useState(false);
   const [date, setDate] = useState(tomorrow());
   const [startTime, setStartTime] = useState('10:00');
@@ -84,8 +89,8 @@ const TimeWindowCreator = ({ onCreate }) => {
       endDateTime.setHours(endHours, endMinutes, 0, 0);
 
       onCreate({
-        startTime: startDateTime.toISOString(),
-        endTime: endDateTime.toISOString(),
+        startTime: startDateTime,
+        endTime: endDateTime,
       });
       setExpanded(false);
       reset();
@@ -164,7 +169,7 @@ const TimeWindowCreator = ({ onCreate }) => {
     const endDate = new Date();
     endDate.setHours(endHours, endMinutes, 0, 0);
 
-    const differenceInMinutes = (endDate - startDate) / (1000 * 60);
+    const differenceInMinutes = (endDate.getTime() - startDate.getTime()) / (1000 * 60);
 
     if (differenceInMinutes < 90) {
       return t('timeWindowMinimum_msg'); // 'End time must be at least 90 minutes after start time';

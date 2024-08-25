@@ -1,7 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const PrimaryButton = styled.button`
+export interface PrimaryButtonProps {
+  $fill?: boolean;
+}
+
+const PrimaryButton = styled.button<PrimaryButtonProps>`
   background: linear-gradient(to right,
     ${(props) => props.disabled ? props.theme.colors.disabled : props.theme.colors.gradientStart},
     ${(props) => props.disabled ? props.theme.colors.disabled : props.theme.colors.primary},

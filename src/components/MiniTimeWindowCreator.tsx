@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import ErrorMessage from './ErrorMessage';
 import { timeRangeFromWindow } from '../util/timeWindowUtil';
+import { CreateTimeWindowData, TimeWindow } from '../model/bookingTypes';
 
 const MiniTimeWindowCreatorWrapper = styled.div`
   width: 100%;
@@ -67,7 +68,15 @@ const IconButton = styled.button`
   }
 `;
 
-const MiniTimeWindowCreator = ({ date = null, window = null, onCreate, onCancel, onDelete = undefined }) => {
+interface MiniTimeWindowCreatorProps {
+  date?: Date;
+  window?: TimeWindow;
+  onCreate: (data: CreateTimeWindowData) => void;
+  onCancel: () => void;
+  onDelete?: (data: TimeWindow) => void;
+}
+
+const MiniTimeWindowCreator: React.FC<MiniTimeWindowCreatorProps> = ({ date = null, window = null, onCreate, onCancel, onDelete = undefined }) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [startTime, setStartTime] = useState('10:00');
   const [endTime, setEndTime] = useState('14:00');
@@ -80,13 +89,12 @@ const MiniTimeWindowCreator = ({ date = null, window = null, onCreate, onCancel,
 
   useEffect(() => {
     if (window) {
-      setStartTime(isoStringToTime(window.startTime));
-      setEndTime(isoStringToTime(window.endTime));
+      setStartTime(dateToTime(window.startTime.toDate()));
+      setEndTime(dateToTime(window.endTime.toDate()));
     }
   }, [window]);
 
-  const isoStringToTime = (isoString) => {
-    const date = new Date(isoString);
+  const dateToTime = (date: Date) => {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${hours}:${minutes}`;
@@ -111,15 +119,15 @@ const MiniTimeWindowCreator = ({ date = null, window = null, onCreate, onCancel,
       const [startHours, startMinutes] = startTime.split(':').map(Number);
       const [endHours, endMinutes] = endTime.split(':').map(Number);
 
-      const startDateTime = new Date(window == null ? date : window.startTime);
+      const startDateTime = new Date(window == null ? date : window.startTime.toDate());
       startDateTime.setHours(startHours, startMinutes, 0, 0);
 
       const endDateTime = new Date(startDateTime);
       endDateTime.setHours(endHours, endMinutes, 0, 0);
 
       onCreate({
-        startTime: startDateTime.toISOString(),
-        endTime: endDateTime.toISOString(),
+        startTime: startDateTime,
+        endTime: endDateTime,
       });
       reset();
     } else {
@@ -212,7 +220,7 @@ const MiniTimeWindowCreator = ({ date = null, window = null, onCreate, onCancel,
             if (confirmDelete) {
               setConfirmDelete(false)
             } else {
-              onCancel(e)
+              onCancel()
             }
           }}>
             <FiX />
@@ -220,7 +228,7 @@ const MiniTimeWindowCreator = ({ date = null, window = null, onCreate, onCancel,
           <IconButton onClick={(e) => {
             e.preventDefault()
             if (confirmDelete) {
-              onDelete(e)
+              onDelete(window)
             } else {
               if (createInvalid) {
                 handleInvalidSubmit(e)
