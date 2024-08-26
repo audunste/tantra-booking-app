@@ -247,6 +247,7 @@ const AuthComponent = () => {
               onChange={handleUsernameChange}
               validate={validateUsername}
               forceValidate={forceValidate}
+              info={t('signup.username.info', { host: window.location.host || "example.com" })}
             />
             <CheckboxWithError
               checked={termsAccepted}

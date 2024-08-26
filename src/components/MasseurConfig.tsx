@@ -19,19 +19,6 @@ const FieldLabel = styled.label`
   margin-bottom: 8px;
 `;
 
-const FieldValue = styled.div`
-  padding: 8px;
-  background-color: ${(props) => props.theme.colors.secondaryBackground};
-  border-radius: 4px;
-`;
-
-const EditableInput = styled.input`
-  padding: 8px;
-  background-color: ${(props) => props.theme.colors.secondaryBackground};
-  border-radius: 4px;
-  border: 1px solid ${(props) => props.theme.colors.border};
-`;
-
 const CheckboxWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -46,19 +33,6 @@ const CheckboxLabel = styled.label`
 
 const LanguageCheckbox = styled.input`
   cursor: pointer;
-`;
-
-const SaveButton = styled.button`
-  padding: 10px 20px;
-  background-color: ${(props) => props.theme.colors.primary};
-  color: ${(props) => props.theme.colors.onPrimary};
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.primaryHover};
-  }
 `;
 
 interface MasseurConfigProps {
@@ -167,6 +141,7 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
         onChange={(e) => setLocation(e.target.value)}
         validate={validateLocation}
         forceValidate={forceValidate}
+        info={t('location.info')}
       />
       <FloatingLabelInputWithError
         type="text"

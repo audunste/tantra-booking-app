@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useTheme } from 'styled-components';
 import ErrorMessage from './ErrorMessage';
@@ -114,7 +114,7 @@ const Popover = styled.div`
   position: absolute;
   top: 40px;
   right: 0;
-  width: 200px;
+  width: 250px;
   background-color: ${(props) => props.theme.colors.background};
   border: 1px solid ${(props) => props.theme.colors.border};
   border-radius: 8px;
@@ -137,7 +137,8 @@ const FloatingLabelInputWithError = ({
   const [debouncedValue, setDebouncedValue] = useState(value);
   const [error, setError] = useState('');
   const [showPopover, setShowPopover] = useState(false);
-
+  const buttonRef = useRef(null);
+  
   const hasError = error && error.length > 0;
   const hasInfo = info && info.length > 0;
   const shouldHoverIcon = theme.capabilities.canHover && hasInfo;
@@ -185,6 +186,9 @@ const FloatingLabelInputWithError = ({
   // Handle outside click to close the popover
   useEffect(() => {
     const handleClickOutside = (event) => {
+      if (buttonRef.current && buttonRef.current.contains(event.target)) {
+        return;
+      }
       if (showPopover) {
         setShowPopover(false);
       }
@@ -217,6 +221,8 @@ const FloatingLabelInputWithError = ({
       {hasInfo && (
         <>
           <HelpButton
+            ref={buttonRef}
+            type="button" // Prevents form submission
             className="hover-icon"
             $hoverVisible={shouldHoverIcon}
             onClick={() => setShowPopover(!showPopover)} // Toggle the popover

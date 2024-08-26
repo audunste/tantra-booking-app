@@ -31,7 +31,7 @@ export const lightTheme = {
     secondaryText: '#887858',
     error: '#bb1107',
     border: '#786848',
-    readOnlyBorder: '#A38D62',
+    readOnlyBorder: '#EBD9B7',
     imageOverlayBackground: 'rgba(255, 255, 255, 0.7)',
   },
 };
