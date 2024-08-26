@@ -1,8 +1,8 @@
-// src/components/FloatingLabelInputWithError.js
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTheme } from 'styled-components';
 import ErrorMessage from './ErrorMessage';
+import { FiHelpCircle } from 'react-icons/fi';
 
 // Styled components
 const InputWrapper = styled.div`
@@ -13,6 +13,7 @@ const InputWrapper = styled.div`
 
 interface StyledInputProps {
   $hasError: Boolean;
+  $hasInfo: Boolean;
 }
 
 const StyledInput = styled.input<StyledInputProps>`
@@ -22,6 +23,7 @@ const StyledInput = styled.input<StyledInputProps>`
 
   width: 100%;
   padding: 10px;
+  padding-right: ${(props) => (props.$hasInfo ? 38 : 10)}px;
   font-size: 1em;
   border: 2px solid ${(props) =>
     props.$hasError 
@@ -74,6 +76,15 @@ const Label = styled.label`
   transform: translateY(-50%); /* Center text vertically */
 `;
 
+const HelpIcon = styled(FiHelpCircle)<{ $hasInfo: Boolean }>`
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  color: ${(props) => props.theme.colors.text};
+  cursor: ${(props) => (props.$hasInfo ? 'pointer' : 'default')};
+  visibility: ${(props) => (props.$hasInfo ? 'visible' : 'hidden')};
+`;
+
 const FloatingLabelInputWithError = ({
   type = 'text',
   value,
@@ -81,7 +92,8 @@ const FloatingLabelInputWithError = ({
   label,
   validate = undefined,
   forceValidate = false,
-  isEditable = true
+  isEditable = true,
+  info = undefined
 }) => {
   const theme = useTheme();
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -138,8 +150,10 @@ const FloatingLabelInputWithError = ({
         $hasError={hasError}
         onBlur={handleBlur}
         readOnly={!isEditable}
+        $hasInfo={!!info}
       />
       <Label>{label}</Label>
+      <HelpIcon $hasInfo={!!info} size={18} />
       <ErrorMessage height={18} $show={hasError}>{error}</ErrorMessage>
     </InputWrapper>
   );

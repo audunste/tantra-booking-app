@@ -149,6 +149,7 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
         label={t('username_lbl')}
         value={masseur.username}
         isEditable={false}
+        info={t('username.info')}
       />
       <FloatingLabelInputWithError
         type="text"

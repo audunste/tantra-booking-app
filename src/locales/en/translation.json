@@ -77,5 +77,6 @@
   "location.lbl": "Location",
   "location.too-long.msg": "Too long location",
   "description.lbl": "Description",
-  "description.too-long.msg": "Too long description"
+  "description.too-long.msg": "Too long description",
+  "username.info": "The username becomes part of your personal website url. If you change it, the url of your site will also change."
 }
