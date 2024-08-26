@@ -12,6 +12,7 @@ import { createTimeWindow, editTimeWindow, deleteTimeWindow, editBooking, create
 import { timeRangeFromWindow } from '../util/timeWindowUtil';
 import { labelFromBooking } from '../util/bookingUtil';
 import { Booking, TimeWindow } from '../model/bookingTypes';
+import { auth } from '../firebaseConfig';
 
 const HeaderWrapper = styled.div`
   display: flex;
@@ -152,6 +153,7 @@ const DayDetails: React.FC<DayDetailsProps> = ({ date, onBack, windows, bookings
           return (
             (bookingBeingEdited && (publicBooking.id === bookingBeingEdited.publicBooking.id)) ? (
               <BookingCreator
+                masseurId={auth.currentUser.uid}
                 key={index}
                 windows={windows}
                 bookings={bookings}
@@ -180,6 +182,7 @@ const DayDetails: React.FC<DayDetailsProps> = ({ date, onBack, windows, bookings
           )
         })}
         {isMakingNewBooking && <BookingCreator
+          masseurId={auth.currentUser.uid}
           date={date} 
           windows={windows}
           bookings={bookings}

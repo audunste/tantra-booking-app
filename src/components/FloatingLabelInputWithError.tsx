@@ -11,7 +11,11 @@ const InputWrapper = styled.div`
   margin: 8px 0 0 0;
 `;
 
-const StyledInput = styled.input`
+interface StyledInputProps {
+  $hasError: Boolean;
+}
+
+const StyledInput = styled.input<StyledInputProps>`
   -webkit-appearance: none; /* Remove default styling on iOS */
   -moz-appearance: none; /* Remove default styling on Firefox */
   appearance: none; /* Remove default styling */
@@ -20,7 +24,11 @@ const StyledInput = styled.input`
   padding: 10px;
   font-size: 1em;
   border: 2px solid ${(props) =>
-    props.$hasError ? props.theme.colors.error : props.theme.colors.border};
+    props.$hasError 
+    ? props.theme.colors.error
+    : (props.readOnly
+      ? props.theme.colors.readOnlyBorder
+      : props.theme.colors.border)};
   border-radius: 8px;
   box-sizing: border-box;
   outline: none;
@@ -28,7 +36,7 @@ const StyledInput = styled.input`
   background-color: ${(props) => props.theme.colors.background};
   color: ${(props) => props.theme.colors.text};
 
-  &:focus {
+  &:not([readonly]):focus {
     border-color: ${(props) =>
       props.$hasError ? props.theme.colors.error : props.theme.colors.primary};
   }
@@ -42,7 +50,7 @@ const StyledInput = styled.input`
     padding: 0 4px;
   }
 
-  &:focus + label {
+  &:not([readonly]):focus + label {
     /* Needed to get the color right in all situations */
     top: -1px;
     font-size: 0.75em;
@@ -69,10 +77,11 @@ const Label = styled.label`
 const FloatingLabelInputWithError = ({
   type = 'text',
   value,
-  onChange,
+  onChange = undefined,
   label,
-  validate,
-  forceValidate
+  validate = undefined,
+  forceValidate = false,
+  isEditable = true
 }) => {
   const theme = useTheme();
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -97,14 +106,17 @@ const FloatingLabelInputWithError = ({
 
   // Validate the debounced value
   useEffect(() => {
-    if (debouncedValue) {
+    if (debouncedValue && isEditable) {
       const errorMessage = validate ? validate(debouncedValue) : '';
       setError(errorMessage);
     }
-  }, [debouncedValue, validate]);
+  }, [debouncedValue, validate, isEditable]);
 
   // Validate on blur
   const handleBlur = () => {
+    if (!isEditable) {
+      return;
+    }
     const errorMessage = validate ? validate(value) : '';
     setError(errorMessage);
   };
@@ -125,6 +137,7 @@ const FloatingLabelInputWithError = ({
         placeholder=" " // Ensures space for label animation
         $hasError={hasError}
         onBlur={handleBlur}
+        readOnly={!isEditable}
       />
       <Label>{label}</Label>
       <ErrorMessage height={18} $show={hasError}>{error}</ErrorMessage>

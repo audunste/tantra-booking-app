@@ -4,7 +4,7 @@ import { FiX, FiCheck, FiTrash2 } from 'react-icons/fi'; // Importing icons
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import ErrorMessage from './ErrorMessage';
-import { timeRangeFromWindow } from '../util/timeWindowUtil';
+import { dateToHoursMinutes, timeRangeFromWindow } from '../util/timeWindowUtil';
 import { CreateTimeWindowData, TimeWindow } from '../model/bookingTypes';
 
 const MiniTimeWindowCreatorWrapper = styled.div`
@@ -89,16 +89,10 @@ const MiniTimeWindowCreator: React.FC<MiniTimeWindowCreatorProps> = ({ date = nu
 
   useEffect(() => {
     if (window) {
-      setStartTime(dateToTime(window.startTime.toDate()));
-      setEndTime(dateToTime(window.endTime.toDate()));
+      setStartTime(dateToHoursMinutes(window.startTime.toDate()));
+      setEndTime(dateToHoursMinutes(window.endTime.toDate()));
     }
   }, [window]);
-
-  const dateToTime = (date: Date) => {
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
-  };
 
   const { t } = useTranslation();
 

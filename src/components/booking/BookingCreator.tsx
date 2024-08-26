@@ -7,6 +7,7 @@ import MassageTypeStage from './MassageTypeStage';
 import AddonsStage from './AddonsStage';
 import TimeSlotStage from './TimeSlotStage';
 import BookingDetailsStage from './BookingDetailsStage';
+import { Booking, CreateBookingData, TimeWindow } from '../../model/bookingTypes';
 
 const BookingCreatorWrapper = styled.div`
   width: 100%;
@@ -43,7 +44,19 @@ const IconButton = styled.button`
   }
 `;
 
-const BookingCreator = ({ 
+interface BookingCreatorProps {
+  masseurId: string;
+  date?: Date;
+  windows: TimeWindow[];
+  bookings: Booking[];
+  editing?: Booking;
+  onCreate: (data: CreateBookingData) => void;
+  onCancel: () => void;
+  onDelete?: (data: Booking) => void;
+}
+
+const BookingCreator: React.FC<BookingCreatorProps> = ({ 
+  masseurId,
   date = undefined,
   windows,
   bookings,
@@ -55,9 +68,9 @@ const BookingCreator = ({
   const { t } = useTranslation();
   
   const [stage, setStage] = useState(0);  // Tracks the current stage
-  const [massageType, setMassageType] = useState(null);  // Massage type selection
-  const [addons, setAddons] = useState([]);  // Selected add-ons
-  const [startTime, setStartTime] = useState('');  // Selected start time
+  const [massageTypeId, setMassageTypeId] = useState<string>(null);  // Massage type selection
+  const [addonIds, setAddonIds] = useState([]);  // Selected add-ons
+  const [startTime, setStartTime] = useState<Date>(null);  // Selected start time
   const [name, setName] = useState('');  // User's name
   const [email, setEmail] = useState('');  // User's email
   const [phone, setPhone] = useState('');  // Optional phone number
@@ -67,9 +80,9 @@ const BookingCreator = ({
   // Initialize state from the editing parameter if provided
   useEffect(() => {
     if (editing) {
-      setMassageType(editing.privateBooking.massageType || null);
-      setAddons(editing.privateBooking.addons || []);
-      setStartTime(editing.publicBooking.startTime || '');
+      setMassageTypeId(editing.privateBooking.massageTypeId || null);
+      setAddonIds(editing.privateBooking.addonIds || []);
+      setStartTime(editing.publicBooking.startTime.toDate() || null);
       setName(editing.privateBooking.name || '');
       setEmail(editing.privateBooking.email || '');
       setPhone(editing.privateBooking.phone || '');
@@ -77,14 +90,8 @@ const BookingCreator = ({
     }
   }, [editing]);
 
-  const calculateEndTime = (startTime, duration) => {
-    const [startHours, startMinutes] = startTime.split(':').map(Number);
-    const startDateTime = new Date(date);
-    startDateTime.setHours(startHours, startMinutes, 0, 0);
-    const endDateTime = new Date(startDateTime.getTime() + duration * 60 * 1000);
-    const hours = String(endDateTime.getHours()).padStart(2, '0');
-    const minutes = String(endDateTime.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
+  const calculateEndTime = (startTime: Date, duration: number) => {
+    return new Date(startTime.getTime() + duration * 60 * 1000);
   };
 
   const handleNext = () => {
@@ -106,8 +113,8 @@ const BookingCreator = ({
     onCreate({
       startTime,
       endTime,
-      massageType,
-      addons,
+      massageTypeId,
+      addonIds,
       name,
       email,
       phone,
@@ -119,9 +126,9 @@ const BookingCreator = ({
 
   const reset = () => {
     setStage(0);
-    setMassageType(null);
-    setAddons([]);
-    setStartTime('');
+    setMassageTypeId(null);
+    setAddonIds([]);
+    setStartTime(null);
     setName('');
     setEmail('');
     setPhone('');
@@ -133,15 +140,15 @@ const BookingCreator = ({
     <BookingCreatorWrapper>
       {stage === 0 && (
         <MassageTypeStage
-          selectedType={massageType}
-          onSelect={setMassageType}
+          selectedType={massageTypeId}
+          onSelect={setMassageTypeId}
           onNext={handleNext}
         />
       )}
       {stage === 1 && (
         <AddonsStage
-          selectedAddons={addons}
-          onSelect={setAddons}
+          selectedAddons={addonIds}
+          onSelect={setAddonIds}
           onPrevious={handlePrevious}
           onNext={handleNext}
         />

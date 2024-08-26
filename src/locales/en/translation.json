@@ -69,5 +69,13 @@
   "available.msg": "Available",
   "no-availability.msg": "No availability",
   "bookings.msg": "Bookings",
-  "no-bookings.msg": "No Bookings"
+  "no-bookings.msg": "No Bookings",
+  "save.act": "Save",
+  "currency.cannot-be-empty.msg": "Currency cannot be empty",
+  "currency.too-long.msg": "Currency too long. Use the abbreviated form.",
+  "currency.lbl": "Currency",
+  "location.lbl": "Location",
+  "location.too-long.msg": "Too long location",
+  "description.lbl": "Description",
+  "description.too-long.msg": "Too long description"
 }

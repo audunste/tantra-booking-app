@@ -1,9 +1,8 @@
-// src/LoggedInPage.js
 import React, { useState, useEffect } from 'react';
 import { logout } from './authService';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig'; // Import db from firebaseConfig
 import Header from './components/Header';
 import ContentWrapper from './components/ContentWrapper';
@@ -12,48 +11,50 @@ import { useTheme } from 'styled-components';
 import TimeWindows from './components/TimeWindows';
 import { Heading1 } from './components/Heading';
 import { useTranslation } from 'react-i18next';
+import { Masseur } from './model/bookingTypes'
+import MasseurConfig from './components/MasseurConfig';
 
-
-const LoggedInPage = () => {
-  const [user, setUser] = useState(null);
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
-  const [userName, setUserName] = useState('');
+const LoggedInPage: React.FC = () => {
+  const [user, setUser] = useState(auth.currentUser);
+  const [isEmailVerified, setIsEmailVerified] = useState(user?.emailVerified || false);
+  const [masseur, setMasseur] = useState<Masseur | null>(null);
   const navigate = useNavigate();
   const theme = useTheme();
-
   const { t } = useTranslation();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
         setIsEmailVerified(currentUser.emailVerified);
-        fetchUserName(currentUser.uid); // Fetch the user's name from Firestore
+        subscribeToMasseurData(currentUser.uid); // Subscribe to masseur data changes
       } else {
         navigate('/'); // Redirect to the home page if not logged in
       }
     });
 
     // Cleanup the subscription on unmount
-    return () => unsubscribe();
+    return () => unsubscribeAuth();
   }, [navigate]);
 
-  const fetchUserName = async (uid) => {
-    try {
-      const userDoc = await getDoc(doc(db, 'masseurs', uid));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        setUserName(userData.name); // Set the user's name in state
+  const subscribeToMasseurData = (uid: string) => {
+    const masseurDocRef = doc(db, 'masseurs', uid);
+    const unsubscribeMasseur = onSnapshot(masseurDocRef, (doc) => {
+      if (doc.exists()) {
+        setMasseur(doc.data() as Masseur); // Set the masseur data in state
       } else {
         console.log('No such document!');
       }
-    } catch (error) {
-      console.error('Error fetching user document:', error);
-    }
+    }, (error) => {
+      console.error('Error fetching masseur document:', error);
+    });
+
+    // Cleanup the subscription on unmount
+    return () => unsubscribeMasseur();
   };
 
   useEffect(() => {
-    let intervalId;
+    let intervalId: NodeJS.Timeout;
 
     const reloadUser = async () => {
       if (auth.currentUser) {
@@ -84,27 +85,29 @@ const LoggedInPage = () => {
     navigate('/'); // Redirect to the home page after logout
   };
 
-
-  const menuItems = null; //['Home', 'About', 'Services', 'Contact'];
+  const menuItems = null; // ['Home', 'About', 'Services', 'Contact'];
 
   return (
     <div>
       <Header
-        title={t('welcomeMasseur_title', { userName: userName || t('masseur_lbl')})}
+        title={t('welcomeMasseur_title', { userName: masseur?.name || t('masseur_lbl') })}
         logoUrl="tantra_logo_colours3.png"
         menuItems={menuItems}
       />
       <ContentWrapper>
-        <Heading1>{t('welcomeMasseur_title', { userName: userName || t('masseur_lbl')})}</Heading1>
+        <Heading1>{t('welcomeMasseur_title', { userName: masseur?.name || t('masseur_lbl') })}</Heading1>
         {!isEmailVerified && (
           <p style={{ color: theme.colors.error }}>
             {t('emailNotVerified_msg')}
           </p>
         )}
-        {isEmailVerified && (
+        {isEmailVerified && masseur && (
           <>
-          <p>{t('loggedIn_msg')}</p>
-          <TimeWindows />
+            <p>{t('loggedIn_msg')}</p>
+            <MasseurConfig masseur={masseur} onSave={(updatedMasseur) => {
+              console.log("onSave masseur: ", updatedMasseur);
+            }} />
+            <TimeWindows /> 
           </>
         )}
         <SecondaryButton onClick={handleLogout}>{t('logout_act')}</SecondaryButton>

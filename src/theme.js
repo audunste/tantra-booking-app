@@ -31,6 +31,7 @@ export const lightTheme = {
     secondaryText: '#887858',
     error: '#bb1107',
     border: '#786848',
+    readOnlyBorder: '#A38D62',
     imageOverlayBackground: 'rgba(255, 255, 255, 0.7)',
   },
 };
@@ -59,6 +60,7 @@ export const darkTheme = {
     secondaryText: '#b0a589', 
     error: '#ff6659',
     border: '#807e7c', 
+    readOnlyBorder: '#403F3E',
     imageOverlayBackground: 'rgba(0, 0, 0, 0.5)',
   },
 };
