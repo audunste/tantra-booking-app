@@ -7,6 +7,7 @@ import FloatingLabelInputWithError from './FloatingLabelInputWithError';
 
 const MasseurConfigWrapper = styled.div`
   width: 100%;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
   align-items: left;

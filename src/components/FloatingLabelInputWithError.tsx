@@ -9,6 +9,10 @@ const InputWrapper = styled.div`
   width: 100%;
   position: relative;
   margin: 8px 0 0 0;
+
+  &:hover .hover-icon {
+    opacity: 1;
+  }
 `;
 
 interface StyledInputProps {
@@ -76,13 +80,37 @@ const Label = styled.label`
   transform: translateY(-50%); /* Center text vertically */
 `;
 
-const HelpIcon = styled(FiHelpCircle)<{ $hasInfo: Boolean }>`
+const HelpButton = styled.button<{ $hoverVisible: Boolean }>`
   position: absolute;
-  right: 12px;
-  top: 12px;
+  right: 4px;
+  top: 4px;
+  padding: 8px;
+  background: none;
+  border: none;
   color: ${(props) => props.theme.colors.text};
-  cursor: ${(props) => (props.$hasInfo ? 'pointer' : 'default')};
-  visibility: ${(props) => (props.$hasInfo ? 'visible' : 'hidden')};
+  cursor: ${(props) => (props.$hoverVisible ? 'pointer' : 'default')};
+  opacity: ${(props) => (props.$hoverVisible ? 0 : 1)};
+  transition: opacity 0.15s ease;
+
+  /* Ensures there's no extra height */
+  line-height: 0;
+
+  /* Align the button properly */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &.hover-icon {
+    opacity: ${(props) => (props.$hoverVisible ? 0 : 'initial')};
+  }
 `;
 
 const FloatingLabelInputWithError = ({
@@ -93,12 +121,15 @@ const FloatingLabelInputWithError = ({
   validate = undefined,
   forceValidate = false,
   isEditable = true,
-  info = undefined
+  info = undefined,
+  onInfoClick = () => {}, // Add a callback for info button click
 }) => {
   const theme = useTheme();
   const [debouncedValue, setDebouncedValue] = useState(value);
   const [error, setError] = useState('');
   const hasError = error && error.length > 0;
+  const hasInfo = info && info.length > 0;
+  const shouldHoverIcon = theme.capabilities.canHover && hasInfo;
 
   // Debounce effect to update the debounced value
   useEffect(() => {
@@ -150,10 +181,18 @@ const FloatingLabelInputWithError = ({
         $hasError={hasError}
         onBlur={handleBlur}
         readOnly={!isEditable}
-        $hasInfo={!!info}
+        $hasInfo={hasInfo}
       />
       <Label>{label}</Label>
-      <HelpIcon $hasInfo={!!info} size={18} />
+      {hasInfo && (
+        <HelpButton
+          className="hover-icon"
+          $hoverVisible={shouldHoverIcon}
+          onClick={onInfoClick} // Respond to onClick event
+        >
+          <FiHelpCircle size={18} />
+        </HelpButton>
+      )}
       <ErrorMessage height={18} $show={hasError}>{error}</ErrorMessage>
     </InputWrapper>
   );
