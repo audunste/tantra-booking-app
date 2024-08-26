@@ -21,9 +21,9 @@ interface StyledInputProps {
 }
 
 const StyledInput = styled.input<StyledInputProps>`
-  -webkit-appearance: none; /* Remove default styling on iOS */
-  -moz-appearance: none; /* Remove default styling on Firefox */
-  appearance: none; /* Remove default styling */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 
   width: 100%;
   padding: 10px;
@@ -57,7 +57,6 @@ const StyledInput = styled.input<StyledInputProps>`
   }
 
   &:not([readonly]):focus + label {
-    /* Needed to get the color right in all situations */
     top: -1px;
     font-size: 0.75em;
     color: ${(props) =>
@@ -76,8 +75,8 @@ const Label = styled.label`
   background-color: ${(props) => props.theme.colors.background};
   transition: all 0.2s;
   pointer-events: none;
-  padding: 0 4px; /* Adds padding to avoid text clipping */
-  transform: translateY(-50%); /* Center text vertically */
+  padding: 0 4px;
+  transform: translateY(-50%);
 `;
 
 const HelpButton = styled.button<{ $hoverVisible: Boolean }>`
@@ -92,10 +91,8 @@ const HelpButton = styled.button<{ $hoverVisible: Boolean }>`
   opacity: ${(props) => (props.$hoverVisible ? 0 : 1)};
   transition: opacity 0.15s ease;
 
-  /* Ensures there's no extra height */
   line-height: 0;
 
-  /* Align the button properly */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -113,6 +110,19 @@ const HelpButton = styled.button<{ $hoverVisible: Boolean }>`
   }
 `;
 
+const Popover = styled.div`
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 200px;
+  background-color: ${(props) => props.theme.colors.background};
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+`;
+
 const FloatingLabelInputWithError = ({
   type = 'text',
   value,
@@ -122,11 +132,12 @@ const FloatingLabelInputWithError = ({
   forceValidate = false,
   isEditable = true,
   info = undefined,
-  onInfoClick = () => {}, // Add a callback for info button click
 }) => {
   const theme = useTheme();
   const [debouncedValue, setDebouncedValue] = useState(value);
   const [error, setError] = useState('');
+  const [showPopover, setShowPopover] = useState(false);
+
   const hasError = error && error.length > 0;
   const hasInfo = info && info.length > 0;
   const shouldHoverIcon = theme.capabilities.canHover && hasInfo;
@@ -171,13 +182,32 @@ const FloatingLabelInputWithError = ({
     }
   }
 
+  // Handle outside click to close the popover
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showPopover) {
+        setShowPopover(false);
+      }
+    };
+
+    if (showPopover) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showPopover]);
+
   return (
     <InputWrapper>
       <StyledInput
         type={type}
         value={value}
         onChange={onChange}
-        placeholder=" " // Ensures space for label animation
+        placeholder=" "
         $hasError={hasError}
         onBlur={handleBlur}
         readOnly={!isEditable}
@@ -185,15 +215,20 @@ const FloatingLabelInputWithError = ({
       />
       <Label>{label}</Label>
       {hasInfo && (
-        <HelpButton
-          className="hover-icon"
-          $hoverVisible={shouldHoverIcon}
-          onClick={onInfoClick} // Respond to onClick event
-        >
-          <FiHelpCircle size={18} />
-        </HelpButton>
+        <>
+          <HelpButton
+            className="hover-icon"
+            $hoverVisible={shouldHoverIcon}
+            onClick={() => setShowPopover(!showPopover)} // Toggle the popover
+          >
+            <FiHelpCircle size={18} />
+          </HelpButton>
+          {showPopover && <Popover>{info}</Popover>}
+        </>
       )}
-      <ErrorMessage height={18} $show={hasError}>{error}</ErrorMessage>
+      <ErrorMessage height={18} $show={hasError}>
+        {error}
+      </ErrorMessage>
     </InputWrapper>
   );
 };
