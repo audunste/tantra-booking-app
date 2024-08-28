@@ -69,5 +69,21 @@
   "available.msg": "Tilgjengelig",
   "no-availability.msg": "Ingen tilgjengelighet",
   "bookings.msg": "Bookinger",
-  "no-bookings.msg": "Ingen bookinger"
+  "no-bookings.msg": "Ingen bookinger",
+  "currency.cannot-be-empty.msg": "Valuta kan ikke være tom",
+  "currency.lbl": "Valuta",
+  "currency.too-long.msg": "For lang valuta. Bruk forkortelsen.",
+  "description.lbl": "Beskrivelse",
+  "description.too-long.msg": "For lang beskrivelse",
+  "location.info": "Beskriv omtrent hvor du gir massasjer, f.eks. med bydel, by og land.",
+  "location.lbl": "Sted ({{lang}})",
+  "location.too-long.msg": "For langt sted",
+  "save.act": "Lagre",
+  "signup.username.info": "Brukernavnet blir en del av din personlige nettside-url, f.eks. \nhttps://{{host}}/erik-hansen",
+  "username.info": "Brukernavnet blir en del av din personlige nettside-url. \nHvis du endrer den, vil også url-en til nettstedet ditt endres.",
+  "english.lbl": "Engelsk",
+  "german.lbl": "Tysk",
+  "norwegian.lbl": "Norsk",
+  "spanish.lbl": "Spansk",
+  "website-languages.lbl": "Språk på nettstedet"
 }

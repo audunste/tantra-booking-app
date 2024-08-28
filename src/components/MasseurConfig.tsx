@@ -15,8 +15,16 @@ const MasseurConfigWrapper = styled.div`
 `;
 
 const FieldLabel = styled.label`
-  font-weight: bold;
-  margin-bottom: 8px;
+  position: absolute;
+  left: 10px;
+  color: ${(props) => props.theme.colors.border};
+  background-color: ${(props) => props.theme.colors.background};
+  transition: all 0.2s;
+  pointer-events: none;
+  padding: 0 4px;
+  transform: translateY(-50%);
+  top: -3px;
+  font-size: 0.75em;
 `;
 
 const CheckboxWrapper = styled.div`
@@ -35,6 +43,19 @@ const LanguageCheckbox = styled.input`
   cursor: pointer;
 `;
 
+const LanguagesWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  margin-bottom: 22px;
+  font-size: 1em;
+  border: 2px solid ${(props) => props.theme.colors.border};
+  border-radius: 8px;
+  box-sizing: border-box;
+  outline: none;
+`;
+
 interface MasseurConfigProps {
   masseur: Masseur;
   onSave: (updatedMasseur: Partial<Masseur>) => void;
@@ -44,17 +65,26 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
   const { i18n, t } = useTranslation();
 
   const [currency, setCurrency] = useState(masseur.currency || '');
-  const [location, setLocation] = useState(masseur.location || '');
-  const [description, setDescription] = useState(masseur.description || '');
+  const [location, setLocation] = useState(masseur.location 
+    ? { "en": masseur.location } : {});
+  const [description, setDescription] = useState(masseur.description
+    ? { "en": masseur.description } : {});
   const [languages, setLanguages] = useState<string[]>(masseur.languages || ['en']);
   const [forceValidate, setForceValidate] = useState(false);
 
   // Set default languages based on i18n.language
   useEffect(() => {
     if (!languages.includes(i18n.language)) {
-      setLanguages((prev) => [...prev, i18n.language]);
+      setLanguages((prev) => {
+        if (!prev.includes(i18n.language)) {
+          return [...prev, i18n.language]
+        }
+        return prev;
+    });
     }
   }, [i18n.language]);
+
+  const allLanguages = ['en', 'nb', 'de', 'es'];
 
   useEffect(() => {
     if (currency.length === 0 && !masseur.currency) {
@@ -64,19 +94,22 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
         setCurrency('€');
       }
     }
-    if (!languages.includes(i18n.language)) {
-      setLanguages((prev) => [...prev, i18n.language]);
-    }
   }, [masseur.currency]);
 
   const handleLanguageChange = (language: string) => {
-    setLanguages((prev) =>
-      prev.includes(language) ? prev.filter((lang) => lang !== language) : [...prev, language]
-    );
+    setLanguages((prev) => {
+      if (prev.includes(language)) {
+        if (prev.length > 1) {
+          return prev.filter((lang) => lang !== language);
+        }
+        return prev;
+      }
+      return [...prev, language]
+    });
   };
 
   const handleSave = () => {
-    onSave({ currency, location, description, languages });
+    onSave({ currency, location: location["en"] || '', description: description["en"] || '', languages });
   };
 
   const validateCurrency = (str: string) => {
@@ -104,6 +137,13 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
     }
     return '';
   }
+
+  const langToDisplayString = {
+    "en": t('english.lbl'),
+    "nb": t('norwegian.lbl'),
+    "de": t('german.lbl'),
+    "es": t('spanish.lbl')
+  };
 
   return (
     <MasseurConfigWrapper>
@@ -134,15 +174,32 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
         validate={validateCurrency}
         forceValidate={forceValidate}
       />
-      <FloatingLabelInputWithError
-        type="text"
-        label={t('location.lbl')}
-        value={location}
-        onChange={(e) => setLocation(e.target.value)}
-        validate={validateLocation}
-        forceValidate={forceValidate}
-        info={t('location.info')}
-      />
+      <LanguagesWrapper>
+        <FieldLabel>{t('website-languages.lbl')}</FieldLabel>
+        <CheckboxWrapper>
+          {allLanguages.map((lang) => (
+            <CheckboxLabel key={lang}>
+              <LanguageCheckbox
+                type="checkbox"
+                checked={languages.includes(lang)}
+                onChange={() => handleLanguageChange(lang)}
+              />
+              {langToDisplayString[lang]}
+            </CheckboxLabel>
+          ))}
+        </CheckboxWrapper>
+      </LanguagesWrapper>
+      {languages.map((lang) => (
+        <FloatingLabelInputWithError
+          type="text"
+          label={t('location.lbl', { lang: langToDisplayString[lang] })}
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          validate={validateLocation}
+          forceValidate={forceValidate}
+          info={t('location.info')}
+        />
+    ))}
       <FloatingLabelInputWithError
         type="text"
         label={t('description.lbl')}
@@ -151,21 +208,6 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
         validate={validateDescription}
         forceValidate={forceValidate}
       />
-      <div>
-        <FieldLabel>Languages:</FieldLabel>
-        <CheckboxWrapper>
-          {['en', 'nb', 'de', 'es'].map((lang) => (
-            <CheckboxLabel key={lang}>
-              <LanguageCheckbox
-                type="checkbox"
-                checked={languages.includes(lang)}
-                onChange={() => handleLanguageChange(lang)}
-              />
-              {lang.toUpperCase()}
-            </CheckboxLabel>
-          ))}
-        </CheckboxWrapper>
-      </div>
       <PrimaryButton onClick={handleSave}>{t('save.act')}</PrimaryButton>
     </MasseurConfigWrapper>
   );

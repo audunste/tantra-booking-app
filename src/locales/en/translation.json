@@ -74,11 +74,16 @@
   "currency.cannot-be-empty.msg": "Currency cannot be empty",
   "currency.too-long.msg": "Currency too long. Use the abbreviated form.",
   "currency.lbl": "Currency",
-  "location.lbl": "Location",
+  "location.lbl": "Location ({{lang}})",
   "location.too-long.msg": "Too long location",
   "description.lbl": "Description",
   "description.too-long.msg": "Too long description",
   "username.info": "The username becomes part of your personal website url. If you change it, the url of your site will also change.",
   "signup.username.info": "The username becomes part of your personal website url, e.g. https://{{host}}/erik-hansen",
-  "location.info": "Enter the general area where you host massages, such as a neighborhood, city, and country."
+  "location.info": "Enter the general area where you host massages, such as a neighborhood, city, and country.",
+  "website-languages.lbl": "Website Languages",
+  "english.lbl": "English",
+  "norwegian.lbl": "Norwegian",
+  "german.lbl": "German",
+  "spanish.lbl": "Spanish"
 }

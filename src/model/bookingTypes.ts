@@ -8,9 +8,9 @@ export interface Masseur {
   name: string;
   username: string;
   currency?: string;
+  languages?: string[];
   location?: string;
   description?: string;
-  languages?: string[];
 }
 
 export interface MasseurTranslation {
@@ -25,10 +25,10 @@ export interface MassageType {
   id: string;
   masseurId?: string;
   minutes: number;
+  cost: number;
   name: string;
   shortDescription: string;
   description: string;
-  cost: number;
 }
 
 export interface MassageTypeTranslation {
@@ -44,10 +44,10 @@ export interface Addon {
   id: string;
   massageTypeId: string;
   minutes: number;
+  cost: number;
   name: string;
   shortDescription: string;
   description: string;
-  cost: number;
 }
 
 export interface AddonTranslation {
