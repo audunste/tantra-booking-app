@@ -61,13 +61,17 @@ interface MasseurConfigProps {
   onSave: (updatedMasseur: Partial<Masseur>) => void;
 }
 
+type LangMap = {
+  [lang: string]: string;
+}
+
 const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
   const { i18n, t } = useTranslation();
 
   const [currency, setCurrency] = useState(masseur.currency || '');
-  const [location, setLocation] = useState(masseur.location 
+  const [location, setLocation] = useState<LangMap>(masseur.location 
     ? { "en": masseur.location } : {});
-  const [description, setDescription] = useState(masseur.description
+  const [description, setDescription] = useState<LangMap>(masseur.description
     ? { "en": masseur.description } : {});
   const [languages, setLanguages] = useState<string[]>(masseur.languages || ['en']);
   const [forceValidate, setForceValidate] = useState(false);
@@ -190,24 +194,30 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
         </CheckboxWrapper>
       </LanguagesWrapper>
       {languages.map((lang) => (
-        <FloatingLabelInputWithError
-          type="text"
-          label={t('location.lbl', { lang: langToDisplayString[lang] })}
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          validate={validateLocation}
-          forceValidate={forceValidate}
-          info={t('location.info')}
-        />
+        <>
+          <FloatingLabelInputWithError
+            type="text"
+            label={t('location.lbl', { lang: langToDisplayString[lang] })}
+            value={location[lang]}
+            onChange={(e) => setLocation((prev: LangMap) => {
+              return { ...prev, lang: e.target.value }
+            })}
+            validate={validateLocation}
+            forceValidate={forceValidate}
+            info={t('location.info')}
+          />
+          <FloatingLabelInputWithError
+            type="text"
+            label={t('description.lbl', { lang: langToDisplayString[lang] })}
+            value={description[lang]}
+            onChange={(e) => setDescription((prev: LangMap) => {
+              return { ...prev, lang: e.target.value }
+            })}
+            validate={validateDescription}
+            forceValidate={forceValidate}
+          />
+        </>
     ))}
-      <FloatingLabelInputWithError
-        type="text"
-        label={t('description.lbl')}
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        validate={validateDescription}
-        forceValidate={forceValidate}
-      />
       <PrimaryButton onClick={handleSave}>{t('save.act')}</PrimaryButton>
     </MasseurConfigWrapper>
   );

@@ -73,7 +73,7 @@
   "currency.cannot-be-empty.msg": "Valuta kan ikke være tom",
   "currency.lbl": "Valuta",
   "currency.too-long.msg": "For lang valuta. Bruk forkortelsen.",
-  "description.lbl": "Beskrivelse",
+  "description.lbl": "Beskrivelse ({{lang}})",
   "description.too-long.msg": "For lang beskrivelse",
   "location.info": "Beskriv omtrent hvor du gir massasjer, f.eks. med bydel, by og land.",
   "location.lbl": "Sted ({{lang}})",

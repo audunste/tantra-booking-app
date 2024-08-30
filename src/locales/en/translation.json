@@ -76,7 +76,7 @@
   "currency.lbl": "Currency",
   "location.lbl": "Location ({{lang}})",
   "location.too-long.msg": "Too long location",
-  "description.lbl": "Description",
+  "description.lbl": "Description ({{lang}})",
   "description.too-long.msg": "Too long description",
   "username.info": "The username becomes part of your personal website url. If you change it, the url of your site will also change.",
   "signup.username.info": "The username becomes part of your personal website url, e.g. https://{{host}}/erik-hansen",
