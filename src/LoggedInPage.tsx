@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { logout } from './authService';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig'; // Import db from firebaseConfig
 import Header from './components/Header';
 import ContentWrapper from './components/ContentWrapper';
@@ -11,13 +11,14 @@ import { useTheme } from 'styled-components';
 import TimeWindows from './components/TimeWindows';
 import { Heading1 } from './components/Heading';
 import { useTranslation } from 'react-i18next';
-import { Masseur } from './model/bookingTypes'
+import { Masseur, MasseurTranslation } from './model/bookingTypes'
 import MasseurConfig from './components/MasseurConfig';
 
 const LoggedInPage: React.FC = () => {
   const [user, setUser] = useState(auth.currentUser);
   const [isEmailVerified, setIsEmailVerified] = useState(user?.emailVerified || false);
   const [masseur, setMasseur] = useState<Masseur | null>(null);
+  const [masseurTranslations, setMasseurTranslations] = useState<MasseurTranslation[]>([]);
   const navigate = useNavigate();
   const theme = useTheme();
   const { t } = useTranslation();
@@ -27,7 +28,6 @@ const LoggedInPage: React.FC = () => {
       if (currentUser) {
         setUser(currentUser);
         setIsEmailVerified(currentUser.emailVerified);
-        subscribeToMasseurData(currentUser.uid); // Subscribe to masseur data changes
       } else {
         navigate('/'); // Redirect to the home page if not logged in
       }
@@ -37,21 +37,44 @@ const LoggedInPage: React.FC = () => {
     return () => unsubscribeAuth();
   }, [navigate]);
 
-  const subscribeToMasseurData = (uid: string) => {
-    const masseurDocRef = doc(db, 'masseurs', uid);
-    const unsubscribeMasseur = onSnapshot(masseurDocRef, (doc) => {
-      if (doc.exists()) {
-        setMasseur(doc.data() as Masseur); // Set the masseur data in state
-      } else {
-        console.log('No such document!');
-      }
-    }, (error) => {
-      console.error('Error fetching masseur document:', error);
-    });
+  useEffect(() => {
+    if (user) {
+      const masseurDocRef = doc(db, 'masseurs', user.uid);
+      const unsubscribeMasseur = onSnapshot(masseurDocRef, (doc) => {
+        if (doc.exists()) {
+          setMasseur(doc.data() as Masseur); // Set the masseur data in state
+        } else {
+          console.log('No such document!');
+        }
+      }, (error) => {
+        console.error('Error fetching masseur document:', error);
+      });
+      return () => unsubscribeMasseur();
+    }
+  }, [user]);
 
-    // Cleanup the subscription on unmount
-    return () => unsubscribeMasseur();
-  };
+  useEffect(() => {
+    if (user) {
+      const masseurTranslationsQuery = query(collection(db, 'masseurTranslations'), where('masseurId', '==', user.uid));
+      const unsubscribeMasseurTranslations = onSnapshot(masseurTranslationsQuery, (querySnapshot) => {
+        const translations = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setMasseurTranslations(translations as MasseurTranslation[]);
+      });
+      return () => unsubscribeMasseurTranslations();
+    }
+  }, [user]);
+
+  const richMasseur: Masseur | null = useMemo(() => {
+    if (user && masseur && masseurTranslations) {
+      var m = { ...masseur, translations: {} };
+      for (const translation of masseurTranslations) {
+        m.translations[translation.language] = translation;
+      }
+      return m;
+    }
+    return null;
+  }, [masseur, masseurTranslations])
+
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -104,7 +127,7 @@ const LoggedInPage: React.FC = () => {
         {isEmailVerified && masseur && (
           <>
             <p>{t('loggedIn_msg')}</p>
-            <MasseurConfig masseur={masseur} onSave={(updatedMasseur) => {
+            <MasseurConfig masseur={richMasseur} onSave={(updatedMasseur) => {
               console.log("onSave masseur: ", updatedMasseur);
             }} />
             <TimeWindows /> 

@@ -172,12 +172,12 @@ const FloatingLabelInputWithError = ({
     if (!isEditable) {
       return;
     }
-    const errorMessage = validate ? validate(value) : '';
+    const errorMessage = validate ? validate(value || '') : '';
     setError(errorMessage);
   };
 
   if (forceValidate) {
-    const errorMessage = validate ? validate(value) : '';
+    const errorMessage = validate ? validate(value || '') : '';
     if (error != errorMessage) {
       setError(errorMessage);
     }

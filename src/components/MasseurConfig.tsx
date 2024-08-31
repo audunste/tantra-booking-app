@@ -194,30 +194,33 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
         </CheckboxWrapper>
       </LanguagesWrapper>
       {languages.map((lang) => (
-        <>
-          <FloatingLabelInputWithError
-            type="text"
-            label={t('location.lbl', { lang: langToDisplayString[lang] })}
-            value={location[lang]}
-            onChange={(e) => setLocation((prev: LangMap) => {
-              return { ...prev, lang: e.target.value }
-            })}
-            validate={validateLocation}
-            forceValidate={forceValidate}
-            info={t('location.info')}
-          />
-          <FloatingLabelInputWithError
-            type="text"
-            label={t('description.lbl', { lang: langToDisplayString[lang] })}
-            value={description[lang]}
-            onChange={(e) => setDescription((prev: LangMap) => {
-              return { ...prev, lang: e.target.value }
-            })}
-            validate={validateDescription}
-            forceValidate={forceValidate}
-          />
-        </>
-    ))}
+        <FloatingLabelInputWithError
+          key={"location-" + lang}
+          type="text"
+          label={t('location.lbl', { lang: langToDisplayString[lang] })}
+          value={location[lang]}
+          onChange={(e) => setLocation((prev: LangMap) => {
+            console.log("New location", e.target.value);
+            return { ...prev, [lang]: e.target.value }
+          })}
+          validate={validateLocation}
+          forceValidate={forceValidate}
+          info={t('location.info')}
+        />
+      ))}
+      {languages.map((lang) => (
+        <FloatingLabelInputWithError
+          key={"description-" + lang}
+          type="text"
+          label={t('description.lbl', { lang: langToDisplayString[lang] })}
+          value={description[lang]}
+          onChange={(e) => setDescription((prev: LangMap) => {
+            return { ...prev, [lang]: e.target.value }
+          })}
+          validate={validateDescription}
+          forceValidate={forceValidate}
+        />
+      ))}
       <PrimaryButton onClick={handleSave}>{t('save.act')}</PrimaryButton>
     </MasseurConfigWrapper>
   );

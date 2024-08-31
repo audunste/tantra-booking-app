@@ -2,6 +2,8 @@
 
 import { Timestamp } from "firebase/firestore";
 
+type Langs = "nb" | "de" | "es";
+
 export interface Masseur {
   id: string;
   email: string;
@@ -11,6 +13,7 @@ export interface Masseur {
   languages?: string[];
   location?: string;
   description?: string;
+  translations?: Partial<Record<Langs, MasseurTranslation>>
 }
 
 export interface MasseurTranslation {
