@@ -101,12 +101,12 @@ const HelpButton = styled.button<{ $hoverVisible: Boolean }>`
     opacity: 1;
   }
 
-  &:focus {
-    outline: none;
-  }
-
   &.hover-icon {
     opacity: ${(props) => (props.$hoverVisible ? 0 : 'initial')};
+  }
+
+  &:focus {
+    opacity: 1;
   }
 `;
 

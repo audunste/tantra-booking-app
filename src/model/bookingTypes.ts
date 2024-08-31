@@ -4,16 +4,30 @@ import { Timestamp } from "firebase/firestore";
 
 type Langs = "nb" | "de" | "es";
 
-export interface Masseur {
-  id: string;
+// This mostly just describes the firestore schema
+export interface MasseurFs {
   email: string;
   name: string;
   username: string;
   currency?: string;
   languages?: string[];
+}
+export interface MasseurTranslationFs {
+  masseurId: string;
+  language: string;
   location?: string;
   description?: string;
-  translations?: Partial<Record<Langs, MasseurTranslation>>
+}
+
+// This is used when giving masseur props to the view
+export interface Masseur {
+  id: string;
+  email: string;
+  name: string;
+  username: string;
+  currency: string;
+  languages: string[];
+  translations: Partial<Record<Langs, MasseurTranslation>>
 }
 
 export interface MasseurTranslation {

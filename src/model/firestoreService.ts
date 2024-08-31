@@ -1,7 +1,7 @@
 // src/model/firestoreService.js
 import { auth, db } from '../firebaseConfig';
 import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc, setDoc, Timestamp } from 'firebase/firestore';
-import { TimeWindow } from './bookingTypes';
+import { Masseur, TimeWindow } from './bookingTypes';
 
 // Add a new document with a generated ID
 const addDocument = async (collectionName, data) => {
@@ -213,6 +213,41 @@ const deleteBooking = async (publicBookingId) => {
   }
 };
 
+const editMasseur = async (updatedMasseur: Masseur) => {
+  try {
+    const masseurRef = doc(db, 'masseurs', updatedMasseur.id);
+
+    // Update the booking with the provided fields
+    await updateDoc(masseurRef, {
+      currency: updatedMasseur.currency,
+      languages: updatedMasseur.languages
+    });
+
+    for (const [lang, translation] of Object.entries(updatedMasseur.translations)) {
+      // doc already exists?
+      if (translation.id && translation.id.length > 0) {
+        const translationRef = doc(db, 'masseurTranslations', translation.id);
+        await updateDoc(translationRef, {
+          location: translation.location,
+          description: translation.description
+        })
+      } else {
+        const translationRef = await addDoc(collection(db, 'masseurTranslations'), {
+          masseurId: updatedMasseur.id,
+          language: lang,
+          ...(translation.location && { location: translation.location }),
+          ...(translation.description && { description: translation.description })
+        });    
+        console.log("Added masseur translation for: ", lang, translationRef.id);
+      }
+    }
+    console.log("Masseur edited with id: ", updatedMasseur.id);
+  } catch (error) {
+    console.error("Error updating masseur: ", error);
+  }
+};
+
+
 export {
   addDocument,
   getDocuments,
@@ -222,4 +257,5 @@ export {
   createBooking,
   editBooking,
   deleteBooking,
+  editMasseur,
 };

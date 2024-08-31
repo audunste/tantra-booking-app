@@ -13,6 +13,7 @@ import { Heading1 } from './components/Heading';
 import { useTranslation } from 'react-i18next';
 import { Masseur, MasseurTranslation } from './model/bookingTypes'
 import MasseurConfig from './components/MasseurConfig';
+import { editMasseur } from './model/firestoreService';
 
 const LoggedInPage: React.FC = () => {
   const [user, setUser] = useState(auth.currentUser);
@@ -42,7 +43,13 @@ const LoggedInPage: React.FC = () => {
       const masseurDocRef = doc(db, 'masseurs', user.uid);
       const unsubscribeMasseur = onSnapshot(masseurDocRef, (doc) => {
         if (doc.exists()) {
-          setMasseur(doc.data() as Masseur); // Set the masseur data in state
+          const defaults = {
+            currency: '',
+            languages: []
+          }
+          const m = { id: doc.id, ...defaults, ...doc.data() }
+          console.log("Firestore masseur: ", m)
+          setMasseur(m as Masseur); // Set the masseur data in state
         } else {
           console.log('No such document!');
         }
@@ -66,7 +73,7 @@ const LoggedInPage: React.FC = () => {
 
   const richMasseur: Masseur | null = useMemo(() => {
     if (user && masseur && masseurTranslations) {
-      var m = { ...masseur, translations: {} };
+      var m: Masseur = { ...masseur, translations: {} };
       for (const translation of masseurTranslations) {
         m.translations[translation.language] = translation;
       }
@@ -74,6 +81,11 @@ const LoggedInPage: React.FC = () => {
     }
     return null;
   }, [masseur, masseurTranslations])
+
+  const handleSaveMassseur = (updatedMasseur: Masseur) => {
+    console.log("Save updatedMasseur: ", updatedMasseur);
+    editMasseur(updatedMasseur);
+  }
 
 
   useEffect(() => {
@@ -127,9 +139,7 @@ const LoggedInPage: React.FC = () => {
         {isEmailVerified && masseur && (
           <>
             <p>{t('loggedIn_msg')}</p>
-            <MasseurConfig masseur={richMasseur} onSave={(updatedMasseur) => {
-              console.log("onSave masseur: ", updatedMasseur);
-            }} />
+            <MasseurConfig masseur={richMasseur} onSave={handleSaveMassseur} />
             <TimeWindows /> 
           </>
         )}

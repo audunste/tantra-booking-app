@@ -58,62 +58,77 @@ const LanguagesWrapper = styled.div`
 
 interface MasseurConfigProps {
   masseur: Masseur;
-  onSave: (updatedMasseur: Partial<Masseur>) => void;
+  onSave: (updatedMasseur: Masseur) => void;
 }
 
 type LangMap = {
   [lang: string]: string;
 }
 
+const allLanguages = ['en', 'nb', 'de', 'es'];
+
 const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
   const { i18n, t } = useTranslation();
 
-  const [currency, setCurrency] = useState(masseur.currency || '');
-  const [location, setLocation] = useState<LangMap>(masseur.location 
-    ? { "en": masseur.location } : {});
-  const [description, setDescription] = useState<LangMap>(masseur.description
-    ? { "en": masseur.description } : {});
-  const [languages, setLanguages] = useState<string[]>(masseur.languages || ['en']);
+  //const [currency, setCurrency] = useState(masseur.currency || '');
+  //const [location, setLocation] = useState<LangMap>(masseur.location 
+  //  ? { "en": masseur.location } : {});
+  //const [description, setDescription] = useState<LangMap>(masseur.description
+  //  ? { "en": masseur.description } : {});
+  //const [languages, setLanguages] = useState<string[]>(masseur.languages || ['en']);
   const [forceValidate, setForceValidate] = useState(false);
+  const [updatedMasseur, setUpdatedMasseur] = useState(masseur);
+
+  const toggleLanguages = (langs) => {
+    var newLanguages = updatedMasseur.languages;
+    for (const lang of langs) {
+      if (newLanguages.includes(lang)) {
+        if (newLanguages.length > 1) {
+          newLanguages = newLanguages.filter((l) => l !== lang);
+        }
+      } else {
+        newLanguages.push(lang)
+      }
+    }
+    const m = { ...updatedMasseur }
+    m.languages = newLanguages
+    for (const lang of newLanguages) {
+      if (!m.translations[lang]) {
+        m.translations[lang] = {
+          id: '',
+          masseurId: updatedMasseur.id,
+          language: lang
+        }
+      }
+    }
+    setUpdatedMasseur(m)
+  }
+ 
+  const toggleLanguage = (lang) => toggleLanguages([lang]);
 
   // Set default languages based on i18n.language
   useEffect(() => {
-    if (!languages.includes(i18n.language)) {
-      setLanguages((prev) => {
-        if (!prev.includes(i18n.language)) {
-          return [...prev, i18n.language]
-        }
-        return prev;
-    });
+    if (masseur.languages.length === 0) {
+      if ('en' === i18n.language || !allLanguages.includes(i18n.language)) {
+        toggleLanguage('en');
+      } else {
+        toggleLanguages(['en', i18n.language])
+      }
     }
   }, [i18n.language]);
 
-  const allLanguages = ['en', 'nb', 'de', 'es'];
-
   useEffect(() => {
-    if (currency.length === 0 && !masseur.currency) {
+    if (masseur.currency.length === 0) {
       if (i18n.language === 'nb') {
-        setCurrency('NOK');
+        setUpdatedMasseur({ ...updatedMasseur, currency: 'NOK' })
       } else {
-        setCurrency('€');
+        setUpdatedMasseur({ ...updatedMasseur, currency: '€' })
       }
     }
   }, [masseur.currency]);
 
-  const handleLanguageChange = (language: string) => {
-    setLanguages((prev) => {
-      if (prev.includes(language)) {
-        if (prev.length > 1) {
-          return prev.filter((lang) => lang !== language);
-        }
-        return prev;
-      }
-      return [...prev, language]
-    });
-  };
-
   const handleSave = () => {
-    onSave({ currency, location: location["en"] || '', description: description["en"] || '', languages });
+    onSave(updatedMasseur);
   };
 
   const validateCurrency = (str: string) => {
@@ -173,8 +188,8 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
       <FloatingLabelInputWithError
         type="text"
         label={t('currency.lbl')}
-        value={currency}
-        onChange={(e) => setCurrency(e.target.value)}
+        value={updatedMasseur.currency}
+        onChange={(e) => setUpdatedMasseur({ ...updatedMasseur, currency: e.target.value })}
         validate={validateCurrency}
         forceValidate={forceValidate}
       />
@@ -185,37 +200,40 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
             <CheckboxLabel key={lang}>
               <LanguageCheckbox
                 type="checkbox"
-                checked={languages.includes(lang)}
-                onChange={() => handleLanguageChange(lang)}
+                checked={updatedMasseur.languages.includes(lang)}
+                onChange={() => toggleLanguage(lang)}
               />
               {langToDisplayString[lang]}
             </CheckboxLabel>
           ))}
         </CheckboxWrapper>
       </LanguagesWrapper>
-      {languages.map((lang) => (
+      {updatedMasseur.languages.map((lang) => (
         <FloatingLabelInputWithError
           key={"location-" + lang}
           type="text"
           label={t('location.lbl', { lang: langToDisplayString[lang] })}
-          value={location[lang]}
-          onChange={(e) => setLocation((prev: LangMap) => {
-            console.log("New location", e.target.value);
-            return { ...prev, [lang]: e.target.value }
+          value={updatedMasseur.translations[lang].location || ''}
+          onChange={(e) => setUpdatedMasseur((prev: Masseur) => {
+            const translations = prev.translations;
+            translations[lang].location = e.target.value
+            return { ...prev, translations }
           })}
           validate={validateLocation}
           forceValidate={forceValidate}
           info={t('location.info')}
         />
       ))}
-      {languages.map((lang) => (
+      {updatedMasseur.languages.map((lang) => (
         <FloatingLabelInputWithError
           key={"description-" + lang}
           type="text"
           label={t('description.lbl', { lang: langToDisplayString[lang] })}
-          value={description[lang]}
-          onChange={(e) => setDescription((prev: LangMap) => {
-            return { ...prev, [lang]: e.target.value }
+          value={updatedMasseur.translations[lang].description || ''}
+          onChange={(e) => setUpdatedMasseur((prev: Masseur) => {
+            const translations = prev.translations;
+            translations[lang].description = e.target.value
+            return { ...prev, translations }
           })}
           validate={validateDescription}
           forceValidate={forceValidate}
