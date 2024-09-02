@@ -18,6 +18,38 @@ export interface MasseurTranslationFs {
   location?: string;
   description?: string;
 }
+export interface MassageTypeFs {
+  masseurId: string;
+  minutes: number;
+  cost: number;
+  name: string;
+  shortDescription: string;
+  description: string;
+  addons: string[];
+}
+export interface MassageTypeTranslationFs {
+  massageTypeId: string;
+  language: string;
+  name: string;
+  shortDescription: string;
+  description: string;
+}
+export interface AddonFs {
+  masseurId: string;
+  minutes: number;
+  cost: number;
+  name: string;
+  shortDescription: string;
+  description: string;
+}
+export interface AddonTranslationFs {
+  addonId: string;
+  language: string;
+  name: string;
+  shortDescription: string;
+  description: string;
+}
+
 
 // This is used when giving masseur props to the view
 export interface Masseur {

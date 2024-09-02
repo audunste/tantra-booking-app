@@ -15,6 +15,7 @@ import { Masseur, MasseurTranslation } from './model/bookingTypes'
 import MasseurConfig from './components/MasseurConfig';
 import { editMasseur } from './model/firestoreService';
 import FixedSpace from './components/FixedSpace';
+import { makeRichMasseur, setUpMasseur } from './model/masseur';
 
 const LoggedInPage: React.FC = () => {
   const [user, setUser] = useState(auth.currentUser);
@@ -40,48 +41,13 @@ const LoggedInPage: React.FC = () => {
     return () => unsubscribeAuth();
   }, [navigate]);
 
+  // Subscribe to masseur info
   useEffect(() => {
-    if (user) {
-      const masseurDocRef = doc(db, 'masseurs', user.uid);
-      const unsubscribeMasseur = onSnapshot(masseurDocRef, (doc) => {
-        if (doc.exists()) {
-          const defaults = {
-            currency: '',
-            languages: []
-          }
-          const m = { id: doc.id, ...defaults, ...doc.data() }
-          console.log("Firestore masseur: ", m)
-          setMasseur(m as Masseur); // Set the masseur data in state
-        } else {
-          console.log('No such document!');
-        }
-      }, (error) => {
-        console.error('Error fetching masseur document:', error);
-      });
-      return () => unsubscribeMasseur();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (user) {
-      const masseurTranslationsQuery = query(collection(db, 'masseurTranslations'), where('masseurId', '==', user.uid));
-      const unsubscribeMasseurTranslations = onSnapshot(masseurTranslationsQuery, (querySnapshot) => {
-        const translations = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setMasseurTranslations(translations as MasseurTranslation[]);
-      });
-      return () => unsubscribeMasseurTranslations();
-    }
+    return setUpMasseur(user, setMasseur, setMasseurTranslations);
   }, [user]);
 
   const richMasseur: Masseur | null = useMemo(() => {
-    if (user && masseur && masseurTranslations) {
-      var m: Masseur = { ...masseur, translations: {} };
-      for (const translation of masseurTranslations) {
-        m.translations[translation.language] = translation;
-      }
-      return m;
-    }
-    return null;
+    return makeRichMasseur(user, masseur, masseurTranslations);
   }, [masseur, masseurTranslations])
 
   const handleSaveMassseur = (updatedMasseur: Masseur) => {

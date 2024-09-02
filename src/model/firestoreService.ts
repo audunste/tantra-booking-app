@@ -1,4 +1,4 @@
-// src/model/firestoreService.js
+// src/model/firestoreService.ts
 import { auth, db } from '../firebaseConfig';
 import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc, setDoc, Timestamp } from 'firebase/firestore';
 import { Masseur, TimeWindow } from './bookingTypes';
