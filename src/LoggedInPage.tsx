@@ -14,12 +14,14 @@ import { useTranslation } from 'react-i18next';
 import { Masseur, MasseurTranslation } from './model/bookingTypes'
 import MasseurConfig from './components/MasseurConfig';
 import { editMasseur } from './model/firestoreService';
+import FixedSpace from './components/FixedSpace';
 
 const LoggedInPage: React.FC = () => {
   const [user, setUser] = useState(auth.currentUser);
   const [isEmailVerified, setIsEmailVerified] = useState(user?.emailVerified || false);
   const [masseur, setMasseur] = useState<Masseur | null>(null);
   const [masseurTranslations, setMasseurTranslations] = useState<MasseurTranslation[]>([]);
+  const [isEditingMasseur, setEditingMasseur] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
   const { t } = useTranslation();
@@ -85,6 +87,7 @@ const LoggedInPage: React.FC = () => {
   const handleSaveMassseur = (updatedMasseur: Masseur) => {
     console.log("Save updatedMasseur: ", updatedMasseur);
     editMasseur(updatedMasseur);
+    setEditingMasseur(false);
   }
 
 
@@ -139,7 +142,15 @@ const LoggedInPage: React.FC = () => {
         {isEmailVerified && masseur && (
           <>
             <p>{t('loggedIn_msg')}</p>
-            <MasseurConfig masseur={richMasseur} onSave={handleSaveMassseur} />
+            {(!richMasseur.currency || isEditingMasseur) && (
+              <MasseurConfig masseur={richMasseur} onSave={handleSaveMassseur} />
+            )}
+            {richMasseur.currency && !isEditingMasseur && (
+              <SecondaryButton onClick={() => setEditingMasseur(true)}>
+                {t('edit-profile.act')}
+              </SecondaryButton>
+            )}
+            <FixedSpace height={10} />
             <TimeWindows /> 
           </>
         )}

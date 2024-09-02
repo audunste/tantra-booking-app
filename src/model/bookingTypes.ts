@@ -2,7 +2,7 @@
 
 import { Timestamp } from "firebase/firestore";
 
-type Langs = "nb" | "de" | "es";
+type Langs = "en" | "nb" | "de" | "es";
 
 // This mostly just describes the firestore schema
 export interface MasseurFs {
