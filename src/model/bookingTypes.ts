@@ -2,10 +2,14 @@
 
 import { Timestamp } from "firebase/firestore";
 
-type Langs = "en" | "nb" | "de" | "es";
+export type Langs = "en" | "nb" | "de" | "es";
 
 // This mostly just describes the firestore schema
+// for the collections.
+// Note that ids are not stored in the data,
+// but is merged into the object on read.
 export interface MasseurFs {
+  id: string;
   email: string;
   name: string;
   username: string;
@@ -13,21 +17,21 @@ export interface MasseurFs {
   languages?: string[];
 }
 export interface MasseurTranslationFs {
+  id: string;
   masseurId: string;
   language: string;
   location?: string;
   description?: string;
 }
 export interface MassageTypeFs {
+  id: string;
   masseurId: string;
   minutes: number;
   cost: number;
-  name: string;
-  shortDescription: string;
-  description: string;
   addons: string[];
 }
 export interface MassageTypeTranslationFs {
+  id: string;
   massageTypeId: string;
   language: string;
   name: string;
@@ -35,21 +39,19 @@ export interface MassageTypeTranslationFs {
   description: string;
 }
 export interface AddonFs {
+  id: string;
   masseurId: string;
   minutes: number;
   cost: number;
-  name: string;
-  shortDescription: string;
-  description: string;
 }
 export interface AddonTranslationFs {
+  id: string;
   addonId: string;
   language: string;
   name: string;
   shortDescription: string;
   description: string;
 }
-
 
 // This is used when giving masseur props to the view
 export interface Masseur {
@@ -72,28 +74,25 @@ export interface MasseurTranslation {
 
 export interface MassageType {
   id: string;
-  masseurId?: string;
+  masseurId: string;
   minutes: number;
   cost: number;
-  name: string;
-  shortDescription: string;
-  description: string;
+  addons: Addon[];
+  translations: Partial<Record<Langs, MassageTypeTranslation>>
+}
+
+export interface Addon {
+  id: string;
+  masseurId: string;
+  minutes: number;
+  cost: number;
+  translations: Partial<Record<Langs, AddonTranslation>>
 }
 
 export interface MassageTypeTranslation {
   id: string;
   massageTypeId: string;
   language: string;
-  name: string;
-  shortDescription: string;
-  description: string;
-}
-
-export interface Addon {
-  id: string;
-  massageTypeId: string;
-  minutes: number;
-  cost: number;
   name: string;
   shortDescription: string;
   description: string;

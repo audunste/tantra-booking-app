@@ -1,9 +1,9 @@
-// src/model/firestoreService.ts
+// src/model/masseur.ts
 import { db } from '../firebaseConfig';
 import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
 import { Masseur, MasseurTranslation } from './bookingTypes';
 import { User } from 'firebase/auth';
-import { SetStateAction } from 'react';
+import { SetStateAction, useEffect, useMemo, useState } from 'react';
 
 const setUpMasseur = (
   user: User,
@@ -51,4 +51,20 @@ const makeRichMasseur = (user: User, masseur: Masseur, masseurTranslations: Mass
   return null;
 };
 
-export { setUpMasseur, makeRichMasseur };
+const useMasseurData = (user) => {
+  const [masseur, setMasseur] = useState<Masseur | null>(null);
+  const [masseurTranslations, setMasseurTranslations] = useState<MasseurTranslation[]>([]);
+
+  useEffect(() => {
+    return setUpMasseur(user, setMasseur, setMasseurTranslations);
+  }, [user]);
+
+  const richMasseur = useMemo(() => {
+    return makeRichMasseur(user, masseur, masseurTranslations);
+  }, [masseur, masseurTranslations]);
+
+  return richMasseur;
+};
+
+
+export { useMasseurData };

@@ -11,17 +11,15 @@ import { useTheme } from 'styled-components';
 import TimeWindows from './components/TimeWindows';
 import { Heading1 } from './components/Heading';
 import { useTranslation } from 'react-i18next';
-import { Masseur, MasseurTranslation } from './model/bookingTypes'
+import { Masseur } from './model/bookingTypes'
 import MasseurConfig from './components/MasseurConfig';
 import { editMasseur } from './model/firestoreService';
 import FixedSpace from './components/FixedSpace';
-import { makeRichMasseur, setUpMasseur } from './model/masseur';
+import { useMasseurData } from './model/masseur';
 
 const LoggedInPage: React.FC = () => {
   const [user, setUser] = useState(auth.currentUser);
   const [isEmailVerified, setIsEmailVerified] = useState(user?.emailVerified || false);
-  const [masseur, setMasseur] = useState<Masseur | null>(null);
-  const [masseurTranslations, setMasseurTranslations] = useState<MasseurTranslation[]>([]);
   const [isEditingMasseur, setEditingMasseur] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
@@ -42,19 +40,15 @@ const LoggedInPage: React.FC = () => {
   }, [navigate]);
 
   // Subscribe to masseur info
-  useEffect(() => {
-    return setUpMasseur(user, setMasseur, setMasseurTranslations);
-  }, [user]);
-
-  const richMasseur: Masseur | null = useMemo(() => {
-    return makeRichMasseur(user, masseur, masseurTranslations);
-  }, [masseur, masseurTranslations])
+  const richMasseur: Masseur | null = useMasseurData(user);
 
   const handleSaveMassseur = (updatedMasseur: Masseur) => {
     console.log("Save updatedMasseur: ", updatedMasseur);
     editMasseur(updatedMasseur);
     setEditingMasseur(false);
   }
+
+  // Subscribe to massage type info
 
 
   useEffect(() => {
@@ -94,18 +88,18 @@ const LoggedInPage: React.FC = () => {
   return (
     <div>
       <Header
-        title={t('welcomeMasseur_title', { userName: masseur?.name || t('masseur_lbl') })}
+        title={t('welcomeMasseur_title', { userName: richMasseur?.name || t('masseur_lbl') })}
         logoUrl="tantra_logo_colours3.png"
         menuItems={menuItems}
       />
       <ContentWrapper>
-        <Heading1>{t('welcomeMasseur_title', { userName: masseur?.name || t('masseur_lbl') })}</Heading1>
+        <Heading1>{t('welcomeMasseur_title', { userName: richMasseur?.name || t('masseur_lbl') })}</Heading1>
         {!isEmailVerified && (
           <p style={{ color: theme.colors.error }}>
             {t('emailNotVerified_msg')}
           </p>
         )}
-        {isEmailVerified && masseur && (
+        {isEmailVerified && richMasseur && (
           <>
             <p>{t('loggedIn_msg')}</p>
             {(!richMasseur.currency || isEditingMasseur) && (
