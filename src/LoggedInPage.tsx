@@ -15,7 +15,7 @@ import { Masseur } from './model/bookingTypes'
 import MasseurConfig from './components/MasseurConfig';
 import { editMasseur } from './model/firestoreService';
 import FixedSpace from './components/FixedSpace';
-import { useMasseurData } from './model/masseur';
+import { useMasseur } from './model/masseur';
 
 const LoggedInPage: React.FC = () => {
   const [user, setUser] = useState(auth.currentUser);
@@ -40,7 +40,7 @@ const LoggedInPage: React.FC = () => {
   }, [navigate]);
 
   // Subscribe to masseur info
-  const richMasseur: Masseur | null = useMasseurData(user);
+  const masseur: Masseur = useMasseur(user.uid);
 
   const handleSaveMassseur = (updatedMasseur: Masseur) => {
     console.log("Save updatedMasseur: ", updatedMasseur);
@@ -88,24 +88,24 @@ const LoggedInPage: React.FC = () => {
   return (
     <div>
       <Header
-        title={t('welcomeMasseur_title', { userName: richMasseur?.name || t('masseur_lbl') })}
+        title={t('welcomeMasseur_title', { userName: masseur?.name || t('masseur_lbl') })}
         logoUrl="tantra_logo_colours3.png"
         menuItems={menuItems}
       />
       <ContentWrapper>
-        <Heading1>{t('welcomeMasseur_title', { userName: richMasseur?.name || t('masseur_lbl') })}</Heading1>
+        <Heading1>{t('welcomeMasseur_title', { userName: masseur?.name || t('masseur_lbl') })}</Heading1>
         {!isEmailVerified && (
           <p style={{ color: theme.colors.error }}>
             {t('emailNotVerified_msg')}
           </p>
         )}
-        {isEmailVerified && richMasseur && (
+        {isEmailVerified && masseur && (
           <>
             <p>{t('loggedIn_msg')}</p>
-            {(!richMasseur.currency || isEditingMasseur) && (
-              <MasseurConfig masseur={richMasseur} onSave={handleSaveMassseur} />
+            {(!masseur.currency || isEditingMasseur) && (
+              <MasseurConfig masseur={masseur} onSave={handleSaveMassseur} />
             )}
-            {richMasseur.currency && !isEditingMasseur && (
+            {masseur.currency && !isEditingMasseur && (
               <SecondaryButton onClick={() => setEditingMasseur(true)}>
                 {t('edit-profile.act')}
               </SecondaryButton>

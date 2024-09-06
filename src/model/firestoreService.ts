@@ -1,6 +1,6 @@
 // src/model/firestoreService.ts
 import { auth, db } from '../firebaseConfig';
-import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc, setDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc, setDoc, Timestamp, QueryConstraint, query, onSnapshot } from 'firebase/firestore';
 import { Masseur, TimeWindow } from './bookingTypes';
 
 // Add a new document with a generated ID
@@ -220,31 +220,31 @@ const editMasseur = async (updatedMasseur: Masseur) => {
     // Update the booking with the provided fields
     await updateDoc(masseurRef, {
       currency: updatedMasseur.currency,
-      languages: updatedMasseur.languages
+      languages: updatedMasseur.languages,
+      translations: updatedMasseur.translations
     });
 
-    for (const [lang, translation] of Object.entries(updatedMasseur.translations)) {
-      // doc already exists?
-      if (translation.id && translation.id.length > 0) {
-        const translationRef = doc(db, 'masseurTranslations', translation.id);
-        await updateDoc(translationRef, {
-          location: translation.location,
-          description: translation.description
-        })
-      } else {
-        const translationRef = await addDoc(collection(db, 'masseurTranslations'), {
-          masseurId: updatedMasseur.id,
-          language: lang,
-          ...(translation.location && { location: translation.location }),
-          ...(translation.description && { description: translation.description })
-        });    
-        console.log("Added masseur translation for: ", lang, translationRef.id);
-      }
-    }
     console.log("Masseur edited with id: ", updatedMasseur.id);
   } catch (error) {
     console.error("Error updating masseur: ", error);
   }
+};
+
+const sub = <T>(
+  collectionName: string,
+  filter: QueryConstraint,
+  setter: (values: T[]) => void,
+  defaults: Partial<T> = {}
+) => {
+  const myQuery = query(collection(db, collectionName), filter);
+  const myUnsubscribe = onSnapshot(myQuery, (querySnapshot) => {
+    const values = querySnapshot.docs.map(doc => {
+      const data = doc.data() as T; 
+      return { ...defaults, id: doc.id, ...data };
+    });
+    setter(values);
+  });
+  return myUnsubscribe;
 };
 
 
@@ -258,4 +258,5 @@ export {
   editBooking,
   deleteBooking,
   editMasseur,
+  sub,
 };

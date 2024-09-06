@@ -70,12 +70,6 @@ const allLanguages = ['en', 'nb', 'de', 'es'];
 const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
   const { i18n, t } = useTranslation();
 
-  //const [currency, setCurrency] = useState(masseur.currency || '');
-  //const [location, setLocation] = useState<LangMap>(masseur.location 
-  //  ? { "en": masseur.location } : {});
-  //const [description, setDescription] = useState<LangMap>(masseur.description
-  //  ? { "en": masseur.description } : {});
-  //const [languages, setLanguages] = useState<string[]>(masseur.languages || ['en']);
   const [forceValidate, setForceValidate] = useState(false);
   const [updatedMasseur, setUpdatedMasseur] = useState(masseur);
 
@@ -94,11 +88,7 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
     m.languages = newLanguages
     for (const lang of newLanguages) {
       if (!m.translations[lang]) {
-        m.translations[lang] = {
-          id: '',
-          masseurId: updatedMasseur.id,
-          language: lang
-        }
+        m.translations[lang] = {}
       }
     }
     setUpdatedMasseur(m)
@@ -164,6 +154,8 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
     "es": t('spanish.lbl')
   };
 
+  const getTranslations = (lang: string) => updatedMasseur.translations[lang] || {}
+
   return (
     <MasseurConfigWrapper>
       <FloatingLabelInputWithError
@@ -213,7 +205,7 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
           key={"location-" + lang}
           type="text"
           label={t('location.lbl', { lang: langToDisplayString[lang] })}
-          value={updatedMasseur.translations[lang].location || ''}
+          value={getTranslations(lang).location || ''}
           onChange={(e) => setUpdatedMasseur((prev: Masseur) => {
             const translations = prev.translations;
             translations[lang].location = e.target.value
@@ -229,7 +221,7 @@ const MasseurConfig: React.FC<MasseurConfigProps> = ({ masseur, onSave }) => {
           key={"description-" + lang}
           type="text"
           label={t('description.lbl', { lang: langToDisplayString[lang] })}
-          value={updatedMasseur.translations[lang].description || ''}
+          value={getTranslations(lang).description || ''}
           onChange={(e) => setUpdatedMasseur((prev: Masseur) => {
             const translations = prev.translations;
             translations[lang].description = e.target.value

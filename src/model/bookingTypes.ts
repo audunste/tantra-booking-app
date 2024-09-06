@@ -6,23 +6,8 @@ export type Langs = "en" | "nb" | "de" | "es";
 
 // This mostly just describes the firestore schema
 // for the collections.
-// Note that ids are not stored in the data,
+// Note that id is not stored in the data,
 // but is merged into the object on read.
-export interface MasseurFs {
-  id: string;
-  email: string;
-  name: string;
-  username: string;
-  currency?: string;
-  languages?: string[];
-}
-export interface MasseurTranslationFs {
-  id: string;
-  masseurId: string;
-  language: string;
-  location?: string;
-  description?: string;
-}
 export interface MassageTypeFs {
   id: string;
   masseurId: string;
@@ -65,9 +50,6 @@ export interface Masseur {
 }
 
 export interface MasseurTranslation {
-  id: string;
-  masseurId: string;
-  language: string;
   location?: string;
   description?: string;
 }
