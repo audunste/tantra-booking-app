@@ -1,10 +1,8 @@
 // src/model/masseur.ts
 import { db } from '../firebaseConfig';
-import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
-import { Masseur, MasseurTranslation } from './bookingTypes';
-import { User } from 'firebase/auth';
-import { SetStateAction, useEffect, useMemo, useState } from 'react';
-import { sub } from './firestoreService';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { Masseur } from './bookingTypes';
+import { useEffect, useState } from 'react';
 
 const useMasseur = (masseurId) => {
 

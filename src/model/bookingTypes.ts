@@ -13,26 +13,34 @@ export interface MassageTypeFs {
   masseurId: string;
   minutes: number;
   cost: number;
-  addons: string[];
+  addonIds: string[];
+  translations: Partial<Record<Langs, MassageTypeTranslation>>
 }
-export interface MassageTypeTranslationFs {
-  id: string;
-  massageTypeId: string;
-  language: string;
-  name: string;
-  shortDescription: string;
-  description: string;
-}
-export interface AddonFs {
+
+export interface MassageType {
   id: string;
   masseurId: string;
   minutes: number;
   cost: number;
+  addons: Addon[];
+  translations: Partial<Record<Langs, MassageTypeTranslation>>
 }
-export interface AddonTranslationFs {
+
+export interface MassageTypeTranslation {
+  name: string;
+  shortDescription: string;
+  description: string;
+}
+
+export interface Addon {
   id: string;
-  addonId: string;
-  language: string;
+  masseurId: string;
+  minutes: number;
+  cost: number;
+  translations: Partial<Record<Langs, AddonTranslation>>
+}
+
+export interface AddonTranslation {
   name: string;
   shortDescription: string;
   description: string;
@@ -52,41 +60,6 @@ export interface Masseur {
 export interface MasseurTranslation {
   location?: string;
   description?: string;
-}
-
-export interface MassageType {
-  id: string;
-  masseurId: string;
-  minutes: number;
-  cost: number;
-  addons: Addon[];
-  translations: Partial<Record<Langs, MassageTypeTranslation>>
-}
-
-export interface Addon {
-  id: string;
-  masseurId: string;
-  minutes: number;
-  cost: number;
-  translations: Partial<Record<Langs, AddonTranslation>>
-}
-
-export interface MassageTypeTranslation {
-  id: string;
-  massageTypeId: string;
-  language: string;
-  name: string;
-  shortDescription: string;
-  description: string;
-}
-
-export interface AddonTranslation {
-  id: string;
-  addonId: string;
-  language: string;
-  name: string;
-  shortDescription: string;
-  description: string;
 }
 
 export interface TimeWindow {

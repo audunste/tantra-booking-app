@@ -230,7 +230,7 @@ const editMasseur = async (updatedMasseur: Masseur) => {
   }
 };
 
-const sub = <T>(
+const subList = <T>(
   collectionName: string,
   filter: QueryConstraint,
   setter: (values: T[]) => void,
@@ -247,6 +247,23 @@ const sub = <T>(
   return myUnsubscribe;
 };
 
+const subRecord = <T>(
+  collectionName: string,
+  filter: QueryConstraint,
+  setter: (values: Record<string, T>) => void,
+  defaults: Partial<T> = {}
+) => {
+  const myQuery = query(collection(db, collectionName), filter);
+  const myUnsubscribe = onSnapshot(myQuery, (querySnapshot) => {
+    const record: Record<string, T> = {}
+    for (const doc of querySnapshot.docs) {
+      const data = doc.data() as T;
+      record[doc.id] = { ...defaults, id: doc.id, ...data }
+    }
+    setter(record);
+  });
+  return myUnsubscribe;
+};
 
 export {
   addDocument,
@@ -258,5 +275,6 @@ export {
   editBooking,
   deleteBooking,
   editMasseur,
-  sub,
+  subList,
+  subRecord,
 };

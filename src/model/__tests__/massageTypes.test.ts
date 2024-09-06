@@ -18,7 +18,7 @@ jest.mock('firebase/firestore', () => {
 import { renderHook, waitFor } from '@testing-library/react';
 import { useMassageTypes } from '../massageTypes';
 import { onSnapshot } from 'firebase/firestore';
-import { AddonFs, AddonTranslationFs, MassageTypeFs } from '../bookingTypes';
+import { Addon, AddonFs, AddonTranslationFs, MassageTypeFs } from '../bookingTypes';
 
 const mockedOnSnapshot = onSnapshot as jest.Mock;
 
@@ -29,25 +29,44 @@ describe('useMassageTypes hook', () => {
 
   it('should return rich massage types after fetching', async () => {
     const mockMassageTypes: MassageTypeFs[] = [
-      { id: '1', masseurId: 'masseur123', minutes: 45, addons: [ 'a1', 'a2' ], cost: 100 },
-      { id: '2', masseurId: 'masseur123', minutes: 60, addons: [ 'a1' ], cost: 150 }
+      { 
+        id: '1', masseurId: 'masseur123', minutes: 45, addonIds: [ 'a1', 'a2' ], cost: 100,
+        translations: {
+          'en': {
+            name: 'Massage A',
+            shortDescription: 'Description A',
+            description: ''
+          }
+        }
+      },
+      {
+        id: '2', masseurId: 'masseur123', minutes: 60, addonIds: [ 'a1' ], cost: 150,
+        translations: {
+          'en': {
+            name: 'Massage B',
+            shortDescription: 'Description B',
+            description: ''
+          }
+        }
+
+      }
     ];
 
-    const mockTranslations = [
-      { id: 'mtt1', massageTypeId: '1', language: 'en', name: 'Massage A', shortDescription: 'Description A' },
-      { id: 'mtt2', massageTypeId: '2', language: 'en', name: 'Massage B', shortDescription: 'Description B' }
-    ];
-
-    const mockAddons: AddonFs[] = [
-      { id: 'a1', masseurId: 'masseur123', minutes: 15, cost: 30 },
-      { id: 'a2', masseurId: 'masseur123', minutes: 20, cost: 35 },
-      { id: 'a3', masseurId: 'masseur123', minutes: 25, cost: 40 },
-    ];
-
-    const mockAddonTranslations: AddonTranslationFs[] = [
-      { id: 'at1', addonId: 'a1', language: 'nb', name: 'Dusjrituale', shortDescription: 'Shower thing', description: 'Long shower thing' },
-      { id: 'at2', addonId: 'a1', language: 'en', name: 'Shower Ritual', shortDescription: 'Shower thing', description: 'Long shower thing' },
-      { id: 'at3', addonId: 'a2', language: 'nb', name: 'Meditasjon', shortDescription: 'Meditasjon i par', description: 'Long shower thing' },
+    const mockAddons: Addon[] = [
+      { id: 'a1', masseurId: 'masseur123', minutes: 15, cost: 30,
+        translations: {
+          'nb': { name: 'Dusjrituale', shortDescription: 'Shower thing', description: 'Long shower thing' },
+          'en': { name: 'Shower Ritual', shortDescription: 'Shower thing', description: 'Long shower thing' }
+        }
+      },
+      { id: 'a2', masseurId: 'masseur123', minutes: 20, cost: 35,
+        translations: {
+          'nb': { name: 'Meditasjon', shortDescription: 'Meditasjon i par', description: 'Long shower thing' }
+        }
+      },
+      { id: 'a3', masseurId: 'masseur123', minutes: 25, cost: 40,
+        translations: {}
+      },
     ];
 
     const toDocs = (m) => {
@@ -63,17 +82,7 @@ describe('useMassageTypes hook', () => {
 
     // Mocking Firestore snapshots for translations
     mockedOnSnapshot.mockImplementationOnce((_, callback) => {
-      callback({ docs: mockTranslations.map(toDocs) });
-      return () => {}
-    });
-
-    mockedOnSnapshot.mockImplementationOnce((_, callback) => {
       callback({ docs: mockAddons.map(toDocs) });
-      return () => {}
-    });
-
-    mockedOnSnapshot.mockImplementationOnce((_, callback) => {
-      callback({ docs: mockAddonTranslations.map(toDocs) });
       return () => {}
     });
 
@@ -88,12 +97,12 @@ describe('useMassageTypes hook', () => {
 
     // Test the final state after waiting
     expect(result.current).toEqual([
-      { id: '1', masseurId: 'masseur123', minutes: 45, cost: 100, translations: { en: mockTranslations[0] },
-        addons: [ { ...mockAddons[0], translations: { nb: mockAddonTranslations[0], en: mockAddonTranslations[1] } },
-          { ...mockAddons[1], translations: { nb: mockAddonTranslations[2] } }]
+      { id: '1', masseurId: 'masseur123', minutes: 45, cost: 100, translations: { ...mockMassageTypes[0].translations },
+        addons: [ { ...mockAddons[0] },
+          { ...mockAddons[1] }]
       },
-      { id: '2', masseurId: 'masseur123', minutes: 60, cost: 150, translations: { en: mockTranslations[1] },
-        addons: [ { ...mockAddons[0], translations: { nb: mockAddonTranslations[0], en: mockAddonTranslations[1] } } ] }
+      { id: '2', masseurId: 'masseur123', minutes: 60, cost: 150, translations: { ...mockMassageTypes[1].translations },
+        addons: [ { ...mockAddons[0] } ] }
     ]);
   });
 });
