@@ -18,7 +18,7 @@ jest.mock('firebase/firestore', () => {
 import { renderHook, waitFor } from '@testing-library/react';
 import { useMassageTypes } from '../massageTypes';
 import { onSnapshot } from 'firebase/firestore';
-import { Addon, AddonFs, AddonTranslationFs, MassageTypeFs } from '../bookingTypes';
+import { Addon, MassageTypeFs } from '../bookingTypes';
 
 const mockedOnSnapshot = onSnapshot as jest.Mock;
 

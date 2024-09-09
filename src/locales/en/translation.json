@@ -86,5 +86,8 @@
   "norwegian.lbl": "Norwegian",
   "german.lbl": "German",
   "spanish.lbl": "Spanish",
-  "edit-profile.act": "Edit Profile"
+  "edit-profile.act": "Edit Profile",
+  "edit-massage-types.act": "'Edit Massage Types'",
+  "massage-name.lbl": "Massage Name ({{lang}})",
+  "edit-basic-info.act": "Edit Basic Info"
 }

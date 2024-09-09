@@ -9,21 +9,24 @@ import ContentWrapper from './components/ContentWrapper';
 import SecondaryButton from './components/SecondaryButton';
 import { useTheme } from 'styled-components';
 import TimeWindows from './components/TimeWindows';
-import { Heading1 } from './components/Heading';
+import { Heading1, Heading2 } from './components/Heading';
 import { useTranslation } from 'react-i18next';
-import { Masseur } from './model/bookingTypes'
+import { MassageType, Masseur } from './model/bookingTypes'
 import MasseurConfig from './components/MasseurConfig';
 import { editMasseur } from './model/firestoreService';
 import FixedSpace from './components/FixedSpace';
 import { useMasseur } from './model/masseur';
+import { useMassageTypes } from './model/massageTypes';
+import MassageTypes from './components/MassageTypes';
+import Profile from './components/Profile';
 
 const LoggedInPage: React.FC = () => {
   const [user, setUser] = useState(auth.currentUser);
   const [isEmailVerified, setIsEmailVerified] = useState(user?.emailVerified || false);
-  const [isEditingMasseur, setEditingMasseur] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
   const { t } = useTranslation();
+  const masseur = useMasseur(user.uid);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -38,18 +41,6 @@ const LoggedInPage: React.FC = () => {
     // Cleanup the subscription on unmount
     return () => unsubscribeAuth();
   }, [navigate]);
-
-  // Subscribe to masseur info
-  const masseur: Masseur = useMasseur(user.uid);
-
-  const handleSaveMassseur = (updatedMasseur: Masseur) => {
-    console.log("Save updatedMasseur: ", updatedMasseur);
-    editMasseur(updatedMasseur);
-    setEditingMasseur(false);
-  }
-
-  // Subscribe to massage type info
-
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -102,15 +93,9 @@ const LoggedInPage: React.FC = () => {
         {isEmailVerified && masseur && (
           <>
             <p>{t('loggedIn_msg')}</p>
-            {(!masseur.currency || isEditingMasseur) && (
-              <MasseurConfig masseur={masseur} onSave={handleSaveMassseur} />
-            )}
-            {masseur.currency && !isEditingMasseur && (
-              <SecondaryButton onClick={() => setEditingMasseur(true)}>
-                {t('edit-profile.act')}
-              </SecondaryButton>
-            )}
-            <FixedSpace height={10} />
+            <Heading2>Profile</Heading2>
+            <Profile />
+            <Heading2>Availability and Bookings</Heading2>
             <TimeWindows /> 
           </>
         )}
