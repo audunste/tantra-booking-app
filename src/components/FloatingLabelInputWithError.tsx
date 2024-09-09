@@ -24,6 +24,11 @@ const StyledInput = styled.input<StyledInputProps>`
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 
   width: 100%;
   padding: 10px;
@@ -209,7 +214,7 @@ const FloatingLabelInputWithError = ({
     <InputWrapper>
       <StyledInput
         type={type}
-        value={value}
+        value={value === 0 ? '' : value}
         onChange={onChange}
         placeholder=" "
         $hasError={hasError}
@@ -232,7 +237,7 @@ const FloatingLabelInputWithError = ({
           {showPopover && <Popover>{info}</Popover>}
         </>
       )}
-      <ErrorMessage height={18} $show={hasError}>
+      <ErrorMessage height={hasError ? 18 : 4} $show={hasError}>
         {error}
       </ErrorMessage>
     </InputWrapper>

@@ -13,8 +13,9 @@ const ErrorMessage = styled.div<ErrorMessageProps>`
   font-size: 0.8em;
   margin-top: 4px;
   margin-left: 12px;
-  visibility: ${(props) => (props.$show ? 'visible' : 'hidden')};
   text-align: left;
+  transition: height 0.25s ease; /* Smooth transition when changing theme */
 `;
+  //visibility: ${(props) => (props.$show ? 'visible' : 'hidden')};
 
 export default ErrorMessage;

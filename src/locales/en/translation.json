@@ -89,5 +89,9 @@
   "edit-profile.act": "Edit Profile",
   "edit-massage-types.act": "'Edit Massage Types'",
   "massage-name.lbl": "Massage Name ({{lang}})",
-  "edit-basic-info.act": "Edit Basic Info"
+  "edit-basic-info.act": "Edit Basic Info",
+  "massage-minutes.lbl": "Duration in Minutes",
+  "massage-cost.lbl": "Cost in {{currency}}",
+  "massage-short-description.lbl": "Short Description ({{lang}})",
+  "massage-description.lbl": "Longer Description ({{lang}})"
 }

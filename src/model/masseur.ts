@@ -3,8 +3,9 @@ import { db } from '../firebaseConfig';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { Masseur } from './bookingTypes';
 import { useEffect, useState } from 'react';
+import { useUser } from './user';
 
-const useMasseur = (masseurId) => {
+const useMasseur = (masseurId = null) => {
 
   const defaultMasseur: Masseur = {
     id: '',
@@ -17,10 +18,12 @@ const useMasseur = (masseurId) => {
   };
 
   const [masseur, setMasseur] = useState<Masseur>(defaultMasseur);
+  const user = useUser();
 
   useEffect(() => {
-    if (masseurId) {
-      const masseurDocRef = doc(db, 'masseurs', masseurId);
+    const mid = masseurId || (user ? user.uid : undefined);
+    if (mid) {
+      const masseurDocRef = doc(db, 'masseurs', mid);
       const unsubscribeMasseur = onSnapshot(masseurDocRef, (doc) => {
         if (doc.exists()) {
           const m = { ...defaultMasseur, id: doc.id, ...doc.data() }
@@ -34,7 +37,7 @@ const useMasseur = (masseurId) => {
       });
       return unsubscribeMasseur;
     }
-  }, [masseurId]);
+  }, [masseurId, user]);
 
   return masseur;
 };
