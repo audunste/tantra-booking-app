@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { useMasseur } from '../model/masseur';
 import FloatingLabelChoice, { Option } from './FloatingLabelChoice';
 import { massagePresets } from '../model/massagePresets';
+import FloatingLabelTextareaWithError from './FloatingLabelTextareaWithError';
 
 const MassageTypeCreatorWrapper = styled.div`
   width: 100%;
@@ -23,6 +24,12 @@ interface MassageTypeProps {
   onDelete?: (id: string) => void;
 }
 
+function normalizeDescription(input: string): string {
+  let result = input.replace(/[ \t]+/g, ' '); // Collapse spaces and tabs to single space
+  result = result.replace(/ ?\n ?/g, '\n'); // Remove spaces before and after newlines
+  result = result.replace(/([^\n])\n([^\n])/g, '$1 $2'); // Replace single newlines with spaces between words
+  return result.trim();
+}
 
 const MassageTypeCreator: React.FC<MassageTypeProps> = ({
   massageType = null, languages, onSave, onCancel, onDelete = null
@@ -99,9 +106,15 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
     const preset = massagePresets[option.value];
     if (!preset) {
       setSelectedPreset(null);
+      return;
     }
     setUpdatedMassageType((prev: MassageType) => {
-      return { ...prev, ...preset }
+      const retval = { ...prev, ...preset }
+      for (const lang of Object.keys(preset.translations)) {
+        const translation = preset.translations[lang];
+        retval.translations[lang].description = normalizeDescription(translation.description);
+      }
+      return retval
     })    
     setSelectedPreset(option);
   }
@@ -157,9 +170,8 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
           forceValidate={forceValidate}
         />
         {languages.map((lang) => (
-          <FloatingLabelInputWithError
+          <FloatingLabelTextareaWithError
             key={updatedMassageType.id + "-shortDescription-" + lang}
-            type="text"
             label={t('massage-short-description.lbl', { lang: langToDisplayString[lang] })}
             value={getTranslations(lang).shortDescription || ''}
             onChange={(e) => setUpdatedMassageType((prev: MassageType) => {
@@ -172,12 +184,12 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
             })}
             validate={v => ''}
             forceValidate={forceValidate}
+            rows={2}
           />
         ))}
         {languages.map((lang) => (
-          <FloatingLabelInputWithError
+          <FloatingLabelTextareaWithError
             key={updatedMassageType.id + "-description-" + lang}
-            type="text"
             label={t('massage-description.lbl', { lang: langToDisplayString[lang] })}
             value={getTranslations(lang).description || ''}
             onChange={(e) => setUpdatedMassageType((prev: MassageType) => {
@@ -190,6 +202,7 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
             })}
             validate={v => ''}
             forceValidate={forceValidate}
+            rows={6}
           />
         ))}
         <button type="submit">{t('save.lbl')}</button>
