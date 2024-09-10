@@ -215,11 +215,16 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
       return;
     }
     setUpdatedMassageType((prev: MassageType) => {
-      const retval = { ...prev, ...preset }
+      const retval = { ...prev }
       for (const lang of Object.keys(preset.translations)) {
         const translation = preset.translations[lang];
-        retval.translations[lang].description = normalizeDescription(translation.description);
+        retval.translations[lang] = {
+          description: normalizeDescription(translation.description),
+          name: translation.name,
+          shortDescription: translation.shortDescription
+        }
       }
+      retval.minutes = preset.minutes
       return retval
     })    
     setSelectedPreset(option);
@@ -251,6 +256,7 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
                 translations[lang] = {}
               }
               translations[lang].name = e.target.value
+              setSelectedPreset(null);
               return { ...prev, translations }
             })}
             validate={v => validateName(v)}
@@ -290,6 +296,7 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
                 translations[lang] = {}
               }
               translations[lang].shortDescription = e.target.value
+              setSelectedPreset(null);
               return { ...prev, translations }
             })}
             validate={v => validateShortDescription(v)}
@@ -309,6 +316,7 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
                 translations[lang] = {}
               }
               translations[lang].description = e.target.value
+              setSelectedPreset(null);
               return { ...prev, translations }
             })}
             validate={v => validateDescription(v)}
