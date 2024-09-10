@@ -8,7 +8,7 @@
   "date_lbl": "Date",
   "startTime_lbl": "Start Time",
   "endTime_lbl": "End Time",
-  "cancel_act": "Cancel",
+  "cancel.act": "Cancel",
   "create_act": "Create",
   "header_title": "Tantra Masseur Booking System",
   "logIn_title": "Log in or sign up as a masseur",
@@ -24,6 +24,8 @@
   "passwordsUnequal_msg": "Passwords must be equal",
   "nameMinLength_msg": "Name must be at least 3 characters long.",
   "nameMaxLength_msg": "Name must not be longer than 40 characters long.",
+  "max-length.msg": "Should not be more than {{maxLength}} characters long.",
+  "min-length.msg": "Must be at least {{minLength}} characters long.",
   "usernameMinLength_msg": "Username must be at least 3 characters long.",
   "usernameMaxLength_msg": "Username must not be longer than 20 characters long.",
   "usernameStartOrEndHyphen_msg": "Username cannot start or end with a hyphen.",
@@ -93,5 +95,12 @@
   "massage-minutes.lbl": "Duration in Minutes",
   "massage-cost.lbl": "Cost in {{currency}}",
   "massage-short-description.lbl": "Short Description ({{lang}})",
-  "massage-description.lbl": "Longer Description ({{lang}})"
+  "massage-description.lbl": "Longer Description ({{lang}})",
+  "first-massage-type.msg": "Please provide details for one type of massage that you offer. You’ll be able to add more types after completing this step.",
+  "minutes.must-be-number.msg": "Duration must be a number",
+  "minutes.minimum.msg": "Duration must be at least 15 minutes",
+  "minutes.maximum.msg": "Duration can not be more than 180 minutes",
+  "cost.must-be-number.msg": "Cost must be a number",
+  "cost.minimum.msg": "Cost can not be less than 0",
+  "cost.maximum.msg": "Cost can not be more than 100 000"
 }

@@ -1,12 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const SecondaryButton = styled.button`
+interface SecondaryButtonProps {
+  $fill?: boolean;
+}
+
+const SecondaryButton = styled.button<SecondaryButtonProps>`
   background: ${(props) => props.theme.colors.secondary}; 
   //border: 2px solid ${(props) => props.theme.colors.primary};
   border: none; 
   width: ${(props) => props.$fill ? '100%' : 'auto'};
-  max-width: 400px;
+  max-width: 502px;
   color: ${(props) => props.theme.colors.text}; /* Default theme text color */
   font-size: 1em;
   font-weight: 600; /* Semi-bold text */

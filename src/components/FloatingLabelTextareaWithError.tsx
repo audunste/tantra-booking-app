@@ -131,7 +131,8 @@ const FloatingLabelTextareaWithError = ({
   forceValidate = false,
   isEditable = true,
   info = undefined,
-  rows = 3,  // Configurable number of rows
+  rows = 3,
+  maxLength = 1000,
 }) => {
   const theme = useTheme();
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -216,6 +217,7 @@ const FloatingLabelTextareaWithError = ({
         onBlur={handleBlur}
         readOnly={!isEditable}
         $hasInfo={hasInfo}
+        maxLength={maxLength}
       />
       <Label>{label}</Label>
       {hasInfo && (
@@ -232,7 +234,7 @@ const FloatingLabelTextareaWithError = ({
           {showPopover && <Popover>{info}</Popover>}
         </>
       )}
-      <ErrorMessage height={hasError ? 18 : 4} $show={hasError}>
+      <ErrorMessage height={hasError ? 18 : 4} $marginTop={1}>
         {error}
       </ErrorMessage>
     </TextareaWrapper>

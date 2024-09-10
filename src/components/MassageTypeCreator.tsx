@@ -7,6 +7,8 @@ import { useMasseur } from '../model/masseur';
 import FloatingLabelChoice, { Option } from './FloatingLabelChoice';
 import { massagePresets } from '../model/massagePresets';
 import FloatingLabelTextareaWithError from './FloatingLabelTextareaWithError';
+import SecondaryButton from './SecondaryButton';
+import PrimaryButton from './PrimaryButton';
 
 const MassageTypeCreatorWrapper = styled.div`
   width: 100%;
@@ -15,6 +17,32 @@ const MassageTypeCreatorWrapper = styled.div`
   flex-direction: column;
   align-items: left;
 `;
+
+const ButtonContainer = styled.div`
+  background-color: inherit;
+  display: flex;
+  margin: 0px 3px;
+  gap: ${(props) => props.theme.dimens.gap}px;
+  flex-grow: 1; /* Ensures the inputs take up the full width */
+  width: 100%;
+`;
+
+const ButtonWrapper = styled.div`
+  flex: 1;
+  width: 100%;
+`
+
+const minLengths = {
+  name: 5,
+  shortDescription: 20,
+  description: 50
+};
+
+const maxLengths = {
+  name: 60,
+  shortDescription: 120,
+  description: 1000
+};
 
 interface MassageTypeProps {
   massageType?: MassageType;
@@ -32,7 +60,7 @@ function normalizeDescription(input: string): string {
 }
 
 const MassageTypeCreator: React.FC<MassageTypeProps> = ({
-  massageType = null, languages, onSave, onCancel, onDelete = null
+  massageType = null, languages, onSave, onCancel = null, onDelete = null
 }) => {
   const [forceValidate, setForceValidate] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<Option | null>(null); // Track selected preset
@@ -40,7 +68,7 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
     id: '',
     masseurId: '',
     minutes: 0,
-    cost: 0,
+    cost: NaN,
     addons: [],
     translations: {}
   })
@@ -78,7 +106,85 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
     setForceValidate(true);
   };
 
-  const createInvalid = false;
+  const validateName = (name) => {
+    if (!name || name.length < 3) {
+      return t('min-length.msg', { minLength: minLengths.name });
+    }
+    if (name.length > maxLengths.name) {
+      return t('max-length.msg', { maxLengths: maxLengths.name });
+    }
+    return '';
+  }
+
+  const validateShortDescription = (value) => {
+    if (!value || value.length < minLengths.shortDescription) {
+      return t('min-length.msg', { minLength: minLengths.shortDescription });
+    }
+    if (value.length > maxLengths.shortDescription) {
+      return t('max-length.msg', { maxLengths: maxLengths.shortDescription });
+    }
+    return '';
+  }
+
+  const validateDescription = (value) => {
+    if (!value || value.length < minLengths.description) {
+      return t('min-length.msg', { minLength: minLengths.description });
+    }
+    if (value.length > maxLengths.description) {
+      return t('max-length.msg', { maxLengths: maxLengths.description });
+    }
+    return '';
+  }
+
+  const validateMinutes = (value) => {
+    if (!Number.isInteger(value)) {
+      return t('minutes.must-be-number.msg');
+    }
+    const minutes = parseInt(value);
+    if (minutes < 15) {
+      return t('minutes.minimum.msg');
+    }
+    if (minutes > 180) {
+      return t('minutes.maximum.msg');
+    }
+    return '';
+  }
+
+  const validateCost = (value) => {
+    if (!Number.isInteger(value)) {
+      return t('cost.must-be-number.msg');
+    }
+    const cost = parseInt(value);
+    if (cost < 0) {
+      return t('cost.minimum.msg');
+    }
+    if (cost > 100000) {
+      return t('cost.maximum.msg');
+    }
+    return '';
+  }
+
+  const createInvalid = languages.map(lang => {
+    const translation = getTranslations(lang);
+    var errorMsg: string = '';
+    errorMsg = validateName(translation.name);
+    if (errorMsg.length > 0) {
+      return errorMsg;
+    }
+    errorMsg = validateShortDescription(translation.shortDescription);
+    if (errorMsg.length > 0) {
+      return errorMsg;
+    }
+    errorMsg = validateDescription(translation.description);
+    if (errorMsg.length > 0) {
+      return errorMsg;
+    }
+    return errorMsg;
+  }).reduce((acc: boolean, value: string) => {
+    return !!acc || !!value;
+  }, false)
+  || validateMinutes(updatedMassageType.minutes)
+  || validateCost(updatedMassageType.cost);
 
   const presetToOption = (presetKey: string) => {
     const preset = massagePresets[presetKey];
@@ -147,8 +253,9 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
               translations[lang].name = e.target.value
               return { ...prev, translations }
             })}
-            validate={v => ''}
+            validate={v => validateName(v)}
             forceValidate={forceValidate}
+            maxLength={maxLengths.name}
           />
         ))}
         <FloatingLabelInputWithError
@@ -157,7 +264,7 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
           label={t('massage-minutes.lbl')}
           value={updatedMassageType.minutes}
           onChange={(e) => setUpdatedMassageType({ ...updatedMassageType, minutes: parseInt(e.target.value) })}
-          validate={v => ''}
+          validate={v => validateMinutes(v)}
           forceValidate={forceValidate}
         />
         <FloatingLabelInputWithError
@@ -165,8 +272,11 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
           type="number"
           label={t('massage-cost.lbl', { currency: masseur ? masseur.currency : '' })}
           value={updatedMassageType.cost}
-          onChange={(e) => setUpdatedMassageType({ ...updatedMassageType, cost: parseInt(e.target.value) })}
-          validate={v => ''}
+          onChange={(e) => {
+            console.log("cost: ", e.target.value)
+            setUpdatedMassageType({ ...updatedMassageType, cost: parseInt(e.target.value) })
+          }}
+          validate={v => validateCost(v)}
           forceValidate={forceValidate}
         />
         {languages.map((lang) => (
@@ -182,9 +292,10 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
               translations[lang].shortDescription = e.target.value
               return { ...prev, translations }
             })}
-            validate={v => ''}
+            validate={v => validateShortDescription(v)}
             forceValidate={forceValidate}
             rows={2}
+            maxLength={maxLengths.shortDescription}
           />
         ))}
         {languages.map((lang) => (
@@ -200,13 +311,16 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
               translations[lang].description = e.target.value
               return { ...prev, translations }
             })}
-            validate={v => ''}
+            validate={v => validateDescription(v)}
             forceValidate={forceValidate}
             rows={6}
+            maxLength={maxLengths.description}
           />
         ))}
-        <button type="submit">{t('save.lbl')}</button>
-        <button type="button" onClick={onCancel}>{t('cancel.lbl')}</button>
+        <ButtonContainer>
+          {onCancel && <ButtonWrapper><SecondaryButton $fill type="button" onClick={onCancel}>{t('cancel.act')}</SecondaryButton></ButtonWrapper>}
+          <ButtonWrapper><PrimaryButton $fill type="submit">{t('save.act')}</PrimaryButton></ButtonWrapper>
+        </ButtonContainer>
       </form>
     </MassageTypeCreatorWrapper>
   );

@@ -5,6 +5,7 @@ import { MassageType } from '../model/bookingTypes';
 import PrimaryButton from './PrimaryButton';
 import FloatingLabelInputWithError from './FloatingLabelInputWithError';
 import MassageTypeCreator from './MassageTypeCreator';
+import FixedSpace from './FixedSpace';
 
 const MassageTypesWrapper = styled.div`
   width: 100%;
@@ -109,10 +110,14 @@ const MassageTypes: React.FC<MassageTypesProps> = ({ massageTypes, languages, on
           />
         ))}</>)
       })}
+      {massageTypes.length == 0 && (<>
+        <div>{t('first-massage-type.msg')}</div>
+        <FixedSpace height={8} />
+      </>)}
       {isMakingNewWindow && <MassageTypeCreator
         languages={languages}
         onSave={() => {}}
-        onCancel={() => {}}
+        onCancel={massageTypes.length == 0 ? undefined : () => {}}
       />}
     </MassageTypesWrapper>
   );

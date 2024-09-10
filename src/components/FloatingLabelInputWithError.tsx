@@ -137,6 +137,7 @@ const FloatingLabelInputWithError = ({
   forceValidate = false,
   isEditable = true,
   info = undefined,
+  maxLength = undefined,
 }) => {
   const theme = useTheme();
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -172,17 +173,24 @@ const FloatingLabelInputWithError = ({
     }
   }, [debouncedValue, validate, isEditable]);
 
+  const getValidateValue = () => {
+    if (value === undefined || value === null) {
+      return '';
+    }
+    return value;
+  }
+
   // Validate on blur
   const handleBlur = () => {
     if (!isEditable) {
       return;
     }
-    const errorMessage = validate ? validate(value || '') : '';
+    const errorMessage = validate ? validate(getValidateValue()) : '';
     setError(errorMessage);
   };
 
   if (forceValidate) {
-    const errorMessage = validate ? validate(value || '') : '';
+    const errorMessage = validate ? validate(getValidateValue()) : '';
     if (error != errorMessage) {
       setError(errorMessage);
     }
@@ -214,13 +222,14 @@ const FloatingLabelInputWithError = ({
     <InputWrapper>
       <StyledInput
         type={type}
-        value={value === 0 ? '' : value}
+        value={Number.isNaN(value) ? '' : value}
         onChange={onChange}
         placeholder=" "
         $hasError={hasError}
         onBlur={handleBlur}
         readOnly={!isEditable}
         $hasInfo={hasInfo}
+        maxLength={maxLength}
       />
       <Label>{label}</Label>
       {hasInfo && (

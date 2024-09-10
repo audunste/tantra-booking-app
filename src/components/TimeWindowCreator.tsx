@@ -227,7 +227,7 @@ const TimeWindowCreator: React.FC<TimeWindowCreatorProps> = ({ onCreate }) => {
             </FlexContainer>
             <ErrorMessage height={18} $show={true}>{combinedError}</ErrorMessage>
             <ButtonContainer>
-              <SecondaryButton onClick={handleCancel}>{t('cancel_act')}</SecondaryButton>
+              <SecondaryButton onClick={handleCancel}>{t('cancel.act')}</SecondaryButton>
               <PrimaryButton type="submit">{t('create_act')}</PrimaryButton>
             </ButtonContainer>
           </form>

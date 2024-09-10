@@ -8,7 +8,7 @@
   "date_lbl": "Dato",
   "startTime_lbl": "Starttid",
   "endTime_lbl": "Sluttid",
-  "cancel_act": "Avbryt",
+  "cancel.act": "Avbryt",
   "create_act": "Opprett",
   "header_title": "Bookingsystem for Tantramassører",
   "logIn_title": "Logg inn eller registrer deg som massør",

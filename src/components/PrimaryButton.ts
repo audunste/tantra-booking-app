@@ -13,7 +13,7 @@ const PrimaryButton = styled.button<PrimaryButtonProps>`
   );
   border: none;
   width: ${(props) => props.$fill ? '100%' : 'auto'};
-  max-width: 400px;
+  max-width: 502px;
   color: ${(props) => props.theme.colors.onPrimary};
   font-size: 1em;
   font-weight: 600; /* Semi-bold text */

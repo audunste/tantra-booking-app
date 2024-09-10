@@ -8,7 +8,7 @@
   "date_lbl": "Datum",
   "startTime_lbl": "Startzeit",
   "endTime_lbl": "Endzeit",
-  "cancel_act": "Abbrechen",
+  "cancel.act": "Abbrechen",
   "create_act": "Erstellen",
   "header_title": "Buchungssystem für Tantramasseure",
   "logIn_title": "Melden Sie sich an oder registrieren Sie sich als Masseur",
