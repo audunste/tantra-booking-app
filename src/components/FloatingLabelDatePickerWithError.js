@@ -43,7 +43,7 @@ const StyledDateInput = styled.input`
     top: -1px;
     font-size: 0.75em;
     color: ${(props) =>
-      props.$hasError ? props.theme.colors.error : props.theme.colors.border};
+      props.$hasError ? props.theme.colors.error : props.theme.colors.borderText};
     background-color: ${(props) => props.theme.colors.background};
     padding: 0 4px;
   }
@@ -61,12 +61,12 @@ const StyledDateInput = styled.input`
 const Label = styled.label`
   position: absolute;
   top: ${(props) => (props.focused || props.$hasValue ? '-1px' : '20px')};
-  left: 10px;
+  left: 8px;
   font-size: ${(props) => (props.$hasFocus || props.$hasValue ? '0.75em' : '1em')};
   color: ${(props) => (props.$hasFocus
     ? props.theme.colors.primary
     : (props.$hasValue
-      ? props.theme.colors.border
+      ? props.theme.colors.borderText
       : props.theme.colors.secondaryText))};
   background-color: ${(props) => props.theme.colors.background};
   transition: all 0.2s;

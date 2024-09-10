@@ -56,7 +56,7 @@ const StyledInput = styled.input<StyledInputProps>`
     top: -1px;
     font-size: 0.75em;
     color: ${(props) =>
-      props.$hasError ? props.theme.colors.error : props.theme.colors.border};
+      props.$hasError ? props.theme.colors.error : props.theme.colors.borderText};
     background-color: ${(props) => props.theme.colors.background};
     padding: 0 4px;
   }
@@ -74,7 +74,7 @@ const StyledInput = styled.input<StyledInputProps>`
 const Label = styled.label`
   position: absolute;
   top: 20px;
-  left: 10px;
+  left: 8px;
   font-size: 1em;
   color: ${(props) => props.theme.colors.secondaryText};
   background-color: ${(props) => props.theme.colors.background};

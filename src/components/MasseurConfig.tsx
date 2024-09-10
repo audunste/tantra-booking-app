@@ -16,8 +16,8 @@ const MasseurConfigWrapper = styled.div`
 
 const FieldLabel = styled.label`
   position: absolute;
-  left: 10px;
-  color: ${(props) => props.theme.colors.border};
+  left: 8px;
+  color: ${(props) => props.theme.colors.borderText};
   background-color: ${(props) => props.theme.colors.background};
   transition: all 0.2s;
   pointer-events: none;
