@@ -8,7 +8,7 @@ import MassageTypeCreator from './MassageTypeCreator';
 
 const MassageTypesWrapper = styled.div`
   width: 100%;
-  max-width: 400px;
+  max-width: 502px;
   display: flex;
   flex-direction: column;
   align-items: left;

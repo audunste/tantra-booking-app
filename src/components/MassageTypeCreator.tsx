@@ -5,10 +5,11 @@ import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import { useMasseur } from '../model/masseur';
 import FloatingLabelChoice, { Option } from './FloatingLabelChoice';
+import { massagePresets } from '../model/massagePresets';
 
 const MassageTypeCreatorWrapper = styled.div`
   width: 100%;
-  max-width: 400px;
+  max-width: 502px;
   display: flex;
   flex-direction: column;
   align-items: left;
@@ -20,40 +21,6 @@ interface MassageTypeProps {
   onSave: (massageType: MassageType) => void;
   onCancel: () => void;
   onDelete?: (id: string) => void;
-}
-
-// Sample presets
-const massagePresets: Record<string, Partial<MassageType>> = {
-  relaxation: {
-    minutes: 45,
-    translations: {
-      en: { 
-        name: 'Relaxation Massage', 
-        shortDescription: 'TODO', 
-        description: 'TODO multi paragraph description here' 
-      }
-    }
-  },
-  deep_tissue: {
-    minutes: 60,
-    translations: {
-      en: { 
-        name: 'Deep Tissue Massage', 
-        shortDescription: 'TODO', 
-        description: 'TODO multi paragraph description here' 
-      }
-    }
-  },
-  tantric: {
-    minutes: 75,
-    translations: {
-      en: { 
-        name: 'Tantric Massage',
-        shortDescription: 'TODO', 
-        description: 'TODO multi paragraph description here' 
-      }
-    }
-  },
 }
 
 
@@ -128,6 +95,17 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
     }
   }
 
+  const applyPreset = (option: Option) => {
+    const preset = massagePresets[option.value];
+    if (!preset) {
+      setSelectedPreset(null);
+    }
+    setUpdatedMassageType((prev: MassageType) => {
+      return { ...prev, ...preset }
+    })    
+    setSelectedPreset(option);
+  }
+
   return (
     <MassageTypeCreatorWrapper>
       <form onSubmit={createInvalid ? handleInvalidSubmit : handleSubmit}>
@@ -137,8 +115,8 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
           placeholder="Custom Massage"
           value={selectedPreset}
           options={Object.keys(massagePresets).map(p => presetToOption(p))}
-          onChange={(value) => setSelectedPreset(value)}
-          info="Choose your preferred massage type from the options."
+          onChange={(value) => applyPreset(value)}
+          info="You can select one of these preset to fill in values that you then can edit to your liking."
         />
 
         {/* Name, Minutes, Cost, Translations */}
