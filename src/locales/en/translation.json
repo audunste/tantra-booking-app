@@ -102,5 +102,8 @@
   "minutes.maximum.msg": "Duration can not be more than 180 minutes",
   "cost.must-be-number.msg": "Cost must be a number",
   "cost.minimum.msg": "Cost can not be less than 0",
-  "cost.maximum.msg": "Cost can not be more than 100 000"
+  "cost.maximum.msg": "Cost can not be more than 100 000",
+  "minutes.lbl": "{{minutes}} minutes",
+  "profile.title": "Profile",
+  "availability-and-bookings.title": "Availability and Bookings"
 }

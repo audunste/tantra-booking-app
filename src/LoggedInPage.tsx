@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { logout } from './authService';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
-import { auth, db } from './firebaseConfig'; // Import db from firebaseConfig
+import { auth } from './firebaseConfig'; // Import db from firebaseConfig
 import Header from './components/Header';
 import ContentWrapper from './components/ContentWrapper';
 import SecondaryButton from './components/SecondaryButton';
@@ -11,13 +10,7 @@ import { useTheme } from 'styled-components';
 import TimeWindows from './components/TimeWindows';
 import { Heading1, Heading2 } from './components/Heading';
 import { useTranslation } from 'react-i18next';
-import { MassageType, Masseur } from './model/bookingTypes'
-import MasseurConfig from './components/MasseurConfig';
-import { editMasseur } from './model/firestoreService';
-import FixedSpace from './components/FixedSpace';
 import { useMasseur } from './model/masseur';
-import { useMassageTypes } from './model/massageTypes';
-import MassageTypes from './components/MassageTypes';
 import Profile from './components/Profile';
 
 const LoggedInPage: React.FC = () => {
@@ -93,9 +86,9 @@ const LoggedInPage: React.FC = () => {
         {isEmailVerified && masseur && (
           <>
             <p>{t('loggedIn_msg')}</p>
-            <Heading2>Profile</Heading2>
+            <Heading2>{t('profile.title')}</Heading2>
             <Profile />
-            <Heading2>Availability and Bookings</Heading2>
+            <Heading2>{t('availability-and-bookings.title')}</Heading2>
             <TimeWindows /> 
           </>
         )}

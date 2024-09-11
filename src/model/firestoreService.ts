@@ -1,7 +1,7 @@
 // src/model/firestoreService.ts
 import { auth, db } from '../firebaseConfig';
 import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc, setDoc, Timestamp, QueryConstraint, query, onSnapshot } from 'firebase/firestore';
-import { Masseur, TimeWindow } from './bookingTypes';
+import { MassageType, Masseur, TimeWindow } from './bookingTypes';
 
 // Add a new document with a generated ID
 const addDocument = async (collectionName, data) => {
@@ -178,6 +178,7 @@ const createBooking = async (masseurId, startTime, endTime, massageType, addons,
   }
 };
 
+
 const editBooking = async (publicBookingId, updatedPublicFields, updatedPrivateFields) => {
   try {
     const publicBookingRef = doc(db, 'publicBookings', publicBookingId);
@@ -230,6 +231,46 @@ const editMasseur = async (updatedMasseur: Masseur) => {
   }
 };
 
+/*
+export interface MassageTypeFs {
+  id: string;
+  masseurId: string;
+  minutes: number;
+  cost: number;
+  addonIds: string[];
+  translations: Partial<Record<Langs, MassageTypeTranslation>>
+}
+
+export interface MassageType {
+  id: string;
+  masseurId: string;
+  minutes: number;
+  cost: number;
+  addons: Addon[];
+  translations: Partial<Record<Langs, MassageTypeTranslation>>
+}
+*/
+const createMassageType = async (mt: MassageType) => {
+  try {
+    if (!auth.currentUser) {
+      console.error("Error creating massage type: No auth.currentUser");
+      return
+    }
+
+    const masseurId = auth.currentUser.uid
+    const docRef = await addDoc(collection(db, 'massageTypes'), {
+      masseurId,
+      minutes: mt.minutes,
+      cost: mt.cost,
+      addonIds: [],
+      translations: mt.translations
+    });
+    console.log("Massage type created with ID: ", docRef.id);
+  } catch (error) {
+    console.error("Error creating massage type: ", error);
+  }
+};
+
 const subList = <T>(
   collectionName: string,
   filter: QueryConstraint,
@@ -275,6 +316,7 @@ export {
   editBooking,
   deleteBooking,
   editMasseur,
+  createMassageType,
   subList,
   subRecord,
 };

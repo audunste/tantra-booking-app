@@ -6,6 +6,9 @@ import PrimaryButton from './PrimaryButton';
 import FloatingLabelInputWithError from './FloatingLabelInputWithError';
 import MassageTypeCreator from './MassageTypeCreator';
 import FixedSpace from './FixedSpace';
+import { createMassageType } from '../model/firestoreService';
+import RowWithLabelAndButton from './RowWithLabelAndButton';
+import { FiEdit } from 'react-icons/fi';
 
 const MassageTypesWrapper = styled.div`
   width: 100%;
@@ -93,22 +96,36 @@ const MassageTypes: React.FC<MassageTypesProps> = ({ massageTypes, languages, on
     return massageType.translations[lang] || {}
   }
 
+  const handleSaveMassageType = (mt: MassageType) => {
+    if (!mt.id || !mt.masseurId) {
+      createMassageType(mt);
+      setMakingNewWindow(false);
+    }
+  }
+
+  const massageTypeToLabel = (massageType: MassageType) => {
+    var lang = i18n.language;
+    if (!(lang in massageType.translations)) {
+      if ('en' in massageType.translations) {
+        lang = 'en';
+      } else {
+        lang = Object.keys(massageType.translations)[0];
+      }
+    }
+    return massageType.translations[lang].name + ', ' + t('minutes.lbl', { minutes: massageType.minutes });
+  }
+
   return (
     <MassageTypesWrapper>
       {updatedMassageTypes.map((massageType: MassageType) => {
-        return (<>{languages.map((lang) => (
-          <FloatingLabelInputWithError
-            key={massageType.id + "-name-" + lang}
-            type="text"
-            label={t('massage-name.lbl', { lang: langToDisplayString[lang] })}
-            value={getTranslations(massageType, lang).name || ''}
-            onChange={(e) => setUpdatedMassageTypes((prev: MassageType[]) => {
-              return prev;
-            })}
-            validate={v => ''}
-            forceValidate={forceValidate}
-          />
-        ))}</>)
+        return (<RowWithLabelAndButton
+          key={massageType.id}
+          label={massageTypeToLabel(massageType)}
+          buttonContent={isMakingNewWindow ? null : <FiEdit size={18} style={{ verticalAlign: 'middle' }} />}
+          onButtonClick={() => {}}
+          hoverButton
+          borderlessButton
+        />)
       })}
       {massageTypes.length == 0 && (<>
         <div>{t('first-massage-type.msg')}</div>
@@ -116,7 +133,7 @@ const MassageTypes: React.FC<MassageTypesProps> = ({ massageTypes, languages, on
       </>)}
       {isMakingNewWindow && <MassageTypeCreator
         languages={languages}
-        onSave={() => {}}
+        onSave={handleSaveMassageType}
         onCancel={massageTypes.length == 0 ? undefined : () => {}}
       />}
     </MassageTypesWrapper>

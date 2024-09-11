@@ -97,7 +97,6 @@ const MassageTypeCreator: React.FC<MassageTypeProps> = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     setForceValidate(false);
-    console.log("TODO add new massageType");
     onSave(updatedMassageType);
   };
 
