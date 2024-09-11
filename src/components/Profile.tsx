@@ -56,12 +56,12 @@ const Profile: React.FC = ({
   return (
     <>
       {displayState == DisplayState.ShowBasicInfoEditing && (<>
-        <Heading3>Basic Info</Heading3>
+        <Heading3>{t('basic-info.title')}</Heading3>
         <MasseurConfig masseur={masseur} onSave={handleSaveMassseur} />
       </>)}
       {displayState == DisplayState.ShowMassageTypesEditing && (<>
-        <Heading3>Massage Types</Heading3>
-        <MassageTypes massageTypes={massageTypes} languages={masseur.languages} onSave={(v) => {}} />
+        <Heading3>{t('massage-types.title')}</Heading3>
+        <MassageTypes massageTypes={massageTypes} languages={masseur.languages} onDone={() => setEditingMassageTypes(false)} />
       </>)}
       {displayState == DisplayState.ShowEditBasicInfoOrMassageTypes && (<>
         <SecondaryButton onClick={() => setEditingMasseur(true)}>
@@ -69,6 +69,9 @@ const Profile: React.FC = ({
         </SecondaryButton>
         <SecondaryButton onClick={() => setEditingMassageTypes(true)}>
           {t('edit-massage-types.act')}
+        </SecondaryButton>
+        <SecondaryButton onClick={() => setEditingProfile(false)}>
+          {t('cancel.act')}
         </SecondaryButton>
       </>)}
       {displayState == DisplayState.ShowEditProfileButton && (

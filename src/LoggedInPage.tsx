@@ -67,7 +67,7 @@ const LoggedInPage: React.FC = () => {
     navigate('/'); // Redirect to the home page after logout
   };
 
-  const menuItems = null; // ['Home', 'About', 'Services', 'Contact'];
+  const menuItems = [t('home.lbl', t('contact.lbl'))]; // ['Home', 'About', 'Services', 'Contact'];
 
   return (
     <div>

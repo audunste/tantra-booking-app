@@ -34,6 +34,7 @@ export const lightTheme = {
     borderText: '#66583d',
     readOnlyBorder: '#EBD9B7',
     imageOverlayBackground: 'rgba(255, 255, 255, 0.7)',
+    textShadow: 'rgba(255, 255, 255, 0.8)'
   },
 };
 
@@ -64,5 +65,6 @@ export const darkTheme = {
     borderText: '#969492',
     readOnlyBorder: '#403F3E',
     imageOverlayBackground: 'rgba(0, 0, 0, 0.5)',
+    textShadow: 'rgba(0, 0, 0, 0.8)'
   },
 };

@@ -58,10 +58,15 @@ const MenuBar = styled.div`
 const MenuContainer = styled.nav`
   max-width: 1040px;
   width: 100%;
-  padding: 10px 16px;
+  padding: 10px 0px;
   box-sizing: border-box;
   display: flex;
   justify-content: left;
+  align-items: center; /* Center items vertically */
+`;
+
+const Spacer = styled.div`
+  flex-grow: 1; /* Takes up remaining space between the menu items and the language picker */
 `;
 
 const MenuButton = styled.button`
@@ -73,7 +78,7 @@ const MenuButton = styled.button`
   margin: 0 10px;
   padding: 5px 10px;
   cursor: pointer;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 1px ${(props) => props.theme.colors.textShadow};
 
   &:hover {
     text-decoration: underline;
@@ -96,6 +101,7 @@ const LanguagePickerButton = styled.button`
   font-size: 1.5em;
   cursor: pointer;
   margin-left: 10px;
+  margin-right: 10px;
   margin-top: -8px;
   margin-bottom: -8px;
 
@@ -104,10 +110,11 @@ const LanguagePickerButton = styled.button`
   }
 `;
 
+
 const DropdownMenu = styled.ul<{ $isOpen: boolean }>`
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: 100%; /* Position it directly below the button */
+  right: 0; /* Align it to the right edge of the wrapper */
   margin: 10px 0 0;
   padding: 0;
   list-style: none;
@@ -119,6 +126,9 @@ const DropdownMenu = styled.ul<{ $isOpen: boolean }>`
   display: ${(props) => (props.$isOpen ? 'block' : 'none')};
 
   li {
+    display: flex; /* This ensures emoji and text are in the same row */
+    align-items: center; /* Aligns the items vertically */
+    white-space: nowrap; /* Prevent wrapping */
     padding: 10px 20px;
     cursor: pointer;
 
@@ -127,6 +137,12 @@ const DropdownMenu = styled.ul<{ $isOpen: boolean }>`
     }
   }
 `;
+
+const LanguagePickerWrapper = styled.div`
+  position: relative; /* This ensures the dropdown is positioned relative to the button */
+  display: inline-block;
+`;
+
 
 const Header = ({ title, logoUrl, menuItems }) => {
   const { t, i18n } = useTranslation();
@@ -192,16 +208,19 @@ const Header = ({ title, logoUrl, menuItems }) => {
             menuItems.map((item, index) => (
               <MenuButton key={index}>{item}</MenuButton>
             ))}
-          <LanguagePickerButton ref={buttonRef} onClick={() => setMenuOpen(!isMenuOpen)}>
-            {langToEmoji[i18n.language]} {/* Show the emoji for the current language */}
-          </LanguagePickerButton>
-          <DropdownMenu ref={dropdownRef} $isOpen={isMenuOpen}>
-            {languages.map((langCode) => (
-              <li key={langCode} onClick={() => handleLanguageChange(langCode)}>
-                {langToEmoji[langCode]} {langToDisplayString[langCode]}
-              </li>
-            ))}
-          </DropdownMenu>
+          <Spacer /> {/* Takes up remaining space */}
+          <LanguagePickerWrapper>
+            <LanguagePickerButton ref={buttonRef} onClick={() => setMenuOpen(!isMenuOpen)}>
+              {langToEmoji[i18n.language]} {/* Show the emoji for the current language */}
+            </LanguagePickerButton>
+            <DropdownMenu ref={dropdownRef} $isOpen={isMenuOpen}>
+              {languages.map((langCode) => (
+                <li key={langCode} onClick={() => handleLanguageChange(langCode)}>
+                  {langToEmoji[langCode]} {langToDisplayString[langCode]}
+                </li>
+              ))}
+            </DropdownMenu>
+          </LanguagePickerWrapper>
         </MenuContainer>
       </MenuBar>
       <GradientLine />

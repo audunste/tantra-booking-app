@@ -9,6 +9,7 @@ import FixedSpace from './FixedSpace';
 import { createMassageType } from '../model/firestoreService';
 import RowWithLabelAndButton from './RowWithLabelAndButton';
 import { FiEdit } from 'react-icons/fi';
+import SecondaryButton from './SecondaryButton';
 
 const MassageTypesWrapper = styled.div`
   width: 100%;
@@ -64,7 +65,7 @@ const LanguagesWrapper = styled.div`
 interface MassageTypesProps {
   massageTypes: MassageType[];
   languages: string[],
-  onSave: (updatedMassageTypes: MassageType[]) => void;
+  onDone: () => void;
 }
 
 type LangMap = {
@@ -73,17 +74,13 @@ type LangMap = {
 
 const allLanguages = ['en', 'nb', 'de', 'es'];
 
-const MassageTypes: React.FC<MassageTypesProps> = ({ massageTypes, languages, onSave }) => {
+const MassageTypes: React.FC<MassageTypesProps> = ({ massageTypes, languages, onDone }) => {
   const { i18n, t } = useTranslation();
 
   const [forceValidate, setForceValidate] = useState(false);
   const [updatedMassageTypes, setUpdatedMassageTypes] = useState(massageTypes);
-  const [isMakingNewWindow, setMakingNewWindow] = useState(massageTypes.length == 0);
+  const [isMakingNewMassageType, setMakingNewMassageType] = useState(massageTypes.length == 0);
   const [windowBeingEdited, setWindowBeingEdited] = useState(null);
-
-  const handleSave = () => {
-    onSave(updatedMassageTypes);
-  };
 
   const langToDisplayString = {
     "en": t('english.lbl'),
@@ -99,7 +96,7 @@ const MassageTypes: React.FC<MassageTypesProps> = ({ massageTypes, languages, on
   const handleSaveMassageType = (mt: MassageType) => {
     if (!mt.id || !mt.masseurId) {
       createMassageType(mt);
-      setMakingNewWindow(false);
+      setMakingNewMassageType(false);
     }
   }
 
@@ -121,7 +118,7 @@ const MassageTypes: React.FC<MassageTypesProps> = ({ massageTypes, languages, on
         return (<RowWithLabelAndButton
           key={massageType.id}
           label={massageTypeToLabel(massageType)}
-          buttonContent={isMakingNewWindow ? null : <FiEdit size={18} style={{ verticalAlign: 'middle' }} />}
+          buttonContent={isMakingNewMassageType ? null : <FiEdit size={18} style={{ verticalAlign: 'middle' }} />}
           onButtonClick={() => {}}
           hoverButton
           borderlessButton
@@ -131,7 +128,12 @@ const MassageTypes: React.FC<MassageTypesProps> = ({ massageTypes, languages, on
         <div>{t('first-massage-type.msg')}</div>
         <FixedSpace height={8} />
       </>)}
-      {isMakingNewWindow && <MassageTypeCreator
+      {massageTypes.length > 0 && !isMakingNewMassageType && (
+        <SecondaryButton onClick={onDone}>
+          {t('done.act')}
+        </SecondaryButton>
+      )}
+      {isMakingNewMassageType && <MassageTypeCreator
         languages={languages}
         onSave={handleSaveMassageType}
         onCancel={massageTypes.length == 0 ? undefined : () => {}}

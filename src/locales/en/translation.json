@@ -89,7 +89,7 @@
   "german.lbl": "German",
   "spanish.lbl": "Spanish",
   "edit-profile.act": "Edit Profile",
-  "edit-massage-types.act": "'Edit Massage Types'",
+  "edit-massage-types.act": "Edit Massage Types",
   "massage-name.lbl": "Massage Name ({{lang}})",
   "edit-basic-info.act": "Edit Basic Info",
   "massage-minutes.lbl": "Duration in Minutes",
@@ -105,5 +105,10 @@
   "cost.maximum.msg": "Cost can not be more than 100 000",
   "minutes.lbl": "{{minutes}} minutes",
   "profile.title": "Profile",
-  "availability-and-bookings.title": "Availability and Bookings"
+  "availability-and-bookings.title": "Availability and Bookings",
+  "home.lbl": "Home",
+  "contact.lbl": "Contact",
+  "basic-info.title": "Basic Info",
+  "massage-types.title": "Massage Types",
+  "done.act": "Done"
 }

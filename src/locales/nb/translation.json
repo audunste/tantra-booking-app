@@ -105,5 +105,10 @@
   "minutes.minimum.msg": "Varighet må være minst 15 minutter",
   "minutes.must-be-number.msg": "Varighet må være et tall",
   "availability-and-bookings.title": "Tilgjengelighet og bookinger",
-  "profile.title": "Profil"
+  "profile.title": "Profil",
+  "contact.lbl": "Kontakt",
+  "home.lbl": "Hjem",
+  "basic-info.title": "Grunnleggende informasjon",
+  "massage-types.title": "Massasjetyper",
+  "done.act": "Ferdig"
 }
